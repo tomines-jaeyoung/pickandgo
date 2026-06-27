@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>문의완료 - PICK & GO</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="complete-box">
+    <div class="check">💬</div>
+    <h2 th:text="${inquiry.name} + '님, 문의가 접수되었습니다.'">문의완료</h2>
+    <p>빠른 시일 내에 답변드리겠습니다.</p>
+    <a href="/" class="btn btn-dark">홈으로</a>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>정리하기 - PICK & GO</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="container section" style="max-width:560px;">
+    <h2 style="text-align:center;">이미지를 업로드하고 정리하세요</h2>
+    <p style="text-align:center;color:#6b6b6b;font-size:13px;margin-bottom:30px;">PICK &amp; GO와 함께 정리할 가구 사진을 등록해주세요</p>
+
+    <form id="organizeForm" th:action="@{/organize}" method="post" enctype="multipart/form-data">
+
+        <div class="drop-zone" id="dropZone">
+            <span id="dropLabel">파일을 여기에 놓으세요</span>
+            <div class="preview" id="preview" style="display:none;">
+                <img id="previewImg" alt="미리보기">
+            </div>
+            <input type="file" id="imageInput" name="image" accept="image/*" style="display:none;">
+            <div style="margin-top:14px;">
+                <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('imageInput').click()">✓ 업로드</button>
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-top:24px;">
+            <label>상품 이름</label>
+            <input type="text" name="name" required>
+        </div>
+        <div class="form-group">
+            <label>가격 (KRW)</label>
+            <input type="number" name="price" required>
+        </div>
+        <div class="form-group">
+            <label>카테고리</label>
+            <select name="category" required>
+                <option th:each="c : ${T(com.pickandgo.domain.Category).values()}" th:value="${c}" th:text="${c.displayName}"></option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>지역</label>
+            <input type="text" name="location" placeholder="예: 서울특별시 용산구 보광동" required>
+        </div>
+        <div class="form-group">
+            <label>설명</label>
+            <textarea name="description" rows="4"></textarea>
+        </div>
+
+        <div class="form-row-btns">
+            <a href="/" class="btn btn-outline" style="flex:1;text-align:center;">취소</a>
+            <button type="submit" class="btn btn-dark" style="flex:2;">등록하기</button>
+        </div>
+    </form>
+</div>
+
+<!-- 처리 방법 선택 모달 -->
+<div id="choice-modal" class="choice-overlay" style="display:none">
+    <div class="choice-box">
+        <h3 style="margin:0 0 6px;">어떻게 처리할까요?</h3>
+        <p style="font-size:13px;color:#6b6b6b;margin:0 0 22px;">등록하신 가구를 처리하는 방법을 선택해주세요.</p>
+        <div class="choice-btns">
+            <button class="choice-btn c-organize" onclick="submitAs('collect')">
+                <span style="font-size:28px;">🚚</span>
+                <strong>정리하기</strong>
+                <small>전문 업체가 직접 수거해드립니다</small>
+            </button>
+            <button class="choice-btn c-sell" onclick="submitAs('sell')">
+                <span style="font-size:28px;">🤝</span>
+                <strong>판매하기</strong>
+                <small>중고거래로 수익을 창출합니다</small>
+            </button>
+        </div>
+        <button class="btn btn-outline btn-sm" style="margin-top:16px;width:100%;" onclick="closeChoiceModal()">취소</button>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script>
+    // 드래그앤드롭 (기존 그대로)
+    const dropZone = document.getElementById('dropZone');
+    const imageInput = document.getElementById('imageInput');
+    const preview = document.getElementById('preview');
+    const previewImg = document.getElementById('previewImg');
+    const dropLabel = document.getElementById('dropLabel');
+
+    ['dragenter', 'dragover'].forEach(evt =>
+        dropZone.addEventListener(evt, (e) => { e.preventDefault(); e.stopPropagation(); dropZone.classList.add('active'); })
+    );
+    ['dragleave', 'drop'].forEach(evt =>
+        dropZone.addEventListener(evt, (e) => { e.preventDefault(); e.stopPropagation(); dropZone.classList.remove('active'); })
+    );
+    dropZone.addEventListener('drop', (e) => { const file = e.dataTransfer.files[0]; if (file) setFile(file); });
+    imageInput.addEventListener('change', (e) => { const file = e.target.files[0]; if (file) setFile(file); });
+    function setFile(file) {
+        const dt = new DataTransfer(); dt.items.add(file); imageInput.files = dt.files;
+        const reader = new FileReader();
+        reader.onload = (e) => { previewImg.src = e.target.result; preview.style.display = 'block'; dropLabel.style.display = 'none'; };
+        reader.readAsDataURL(file);
+    }
+
+    // 선택 모달
+    const form = document.getElementById('organizeForm');
+    form.addEventListener('submit', function(e) {
+        if (this.dataset.confirmed) return;
+        e.preventDefault();
+        document.getElementById('choice-modal').style.display = 'flex';
+    });
+    function submitAs(type) {
+        form.action = (type === 'collect') ? '/organize/collect' : '/organize';
+        form.dataset.confirmed = 'true';
+        form.submit();
+    }
+    function closeChoiceModal() {
+        document.getElementById('choice-modal').style.display = 'none';
+    }
+</script>
+</body>
+</html>

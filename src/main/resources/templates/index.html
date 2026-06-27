@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>PICK & GO - 가구 처리, 이제 클릭 한 번이면 끝</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<section class="hero-section">
+    <div class="container">
+        <h1>가구 처리, 이제 클릭 한 번이면 끝!</h1>
+        <p>사진 촬영 → AI 분석 → 전문 업체 연결</p>
+
+        <div class="game-wrap" id="game-wrap">
+
+            <!-- 별 카운터 -->
+            <div class="game-star-bar">⭐ <span id="g-stars">0</span></div>
+
+            <!-- 미션 사람들 -->
+            <div class="mission-row" id="mission-row"></div>
+
+            <!-- 컨베이어 벨트 -->
+            <div class="game-belt" id="game-belt">
+                <div class="belt-vis"></div>
+            </div>
+
+            <!-- 서비스 구역 3개 -->
+            <div class="game-zones">
+
+                <!-- 정리하기 -->
+                <div class="game-zone" id="zone-organize"
+                     ondragover="event.preventDefault();this.classList.add('drag-over')"
+                     ondragleave="if(!this.contains(event.relatedTarget))this.classList.remove('drag-over')"
+                     ondrop="PG.handleDrop(event,'organize')">
+                    <div class="zone-card-head">
+                        <span class="zc-emoji">📦</span>
+                        <span class="zc-name">정리하기</span>
+                        <span class="zone-lv" id="lv-organize">Lv.1</span>
+                        <button class="lv-up-btn" onclick="PG.tryLevelUp('organize')" title="레벨업">+</button>
+                    </div>
+                    <div class="zone-card-desc">불필요한 가구를 전문업체가 수거</div>
+                    <div class="zone-actor" id="organize-body">
+                        <div class="truck-wrap" id="g-truck">🚚</div>
+                    </div>
+                </div>
+
+                <!-- 맡겨두기 -->
+                <div class="game-zone" id="zone-storage"
+                     ondragover="event.preventDefault();this.classList.add('drag-over')"
+                     ondragleave="if(!this.contains(event.relatedTarget))this.classList.remove('drag-over')"
+                     ondrop="PG.handleDrop(event,'storage')">
+                    <div class="zone-card-head">
+                        <span class="zc-emoji">🧳</span>
+                        <span class="zc-name">맡겨두기</span>
+                        <span class="zone-lv" id="lv-storage">Lv.1</span>
+                        <button class="lv-up-btn" onclick="PG.tryLevelUp('storage')" title="레벨업">+</button>
+                    </div>
+                    <div class="zone-card-desc">간편한 보관소에 임시 보관</div>
+                    <div class="zone-actor" id="storage-body"></div>
+                </div>
+
+                <!-- 판매하기 -->
+                <div class="game-zone" id="zone-sell"
+                     ondragover="event.preventDefault();this.classList.add('drag-over')"
+                     ondragleave="if(!this.contains(event.relatedTarget))this.classList.remove('drag-over')"
+                     ondrop="PG.handleDrop(event,'sell')">
+                    <div class="zone-card-head">
+                        <span class="zc-emoji">🤝</span>
+                        <span class="zc-name">판매하기</span>
+                        <span class="zone-lv" id="lv-sell">Lv.1</span>
+                        <button class="lv-up-btn" onclick="PG.tryLevelUp('sell')" title="레벨업">+</button>
+                    </div>
+                    <div class="zone-card-desc">중고거래로 수익 창출</div>
+                    <div class="zone-actor">
+                        <div class="sell-queue" id="sell-queue"></div>
+                    </div>
+                </div>
+
+            </div><!-- /game-zones -->
+        </div><!-- /game-wrap -->
+    </div>
+</section>
+
+<section class="container section">
+    <p class="section-title">Sale</p>
+    <h2 style="margin:0 0 24px;">최근 등록된 상품</h2>
+    <div class="product-grid">
+        <a th:each="p : ${latestProducts}" class="product-card" th:href="@{'/products/' + ${p.id}}">
+            <div class="thumb">
+                <img th:if="${p.imageUrl}" th:src="${p.imageUrl}" alt="">
+                <span th:unless="${p.imageUrl}">No Image</span>
+            </div>
+            <div class="info">
+                <p class="name" th:text="${p.name}">상품명</p>
+                <p class="desc" th:text="${p.description}">설명</p>
+                <p class="price" th:text="${p.formattedPrice} + ' 원'">가격</p>
+            </div>
+        </a>
+        <p th:if="${#lists.isEmpty(latestProducts)}" class="empty-state">등록된 상품이 없습니다.</p>
+    </div>
+</section>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script src="/js/game.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>오류 - PICK & GO</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="complete-box">
+    <div class="check">⚠️</div>
+    <h2>오류가 발생했습니다</h2>
+    <p th:text="${message}">에러 메시지</p>
+    <a href="/" class="btn btn-dark">홈으로</a>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

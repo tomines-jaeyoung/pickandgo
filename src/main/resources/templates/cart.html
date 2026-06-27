@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>장바구니 - PICK & GO</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="container section" style="max-width:700px;">
+    <h2>장바구니</h2>
+
+    <p th:if="${#lists.isEmpty(items)}" class="empty-state">장바구니가 비어있습니다.</p>
+
+    <table class="simple-table" th:unless="${#lists.isEmpty(items)}">
+        <tr>
+            <th>상품명</th>
+            <th>카테고리</th>
+            <th>가격</th>
+        </tr>
+        <tr th:each="p : ${items}">
+            <td><a th:href="@{'/products/' + ${p.id}}" th:text="${p.name}"></a></td>
+            <td th:text="${p.category.displayName}"></td>
+            <td th:text="${p.formattedPrice} + ' 원'"></td>
+        </tr>
+    </table>
+
+    <p th:unless="${#lists.isEmpty(items)}" style="text-align:right;font-weight:700;font-size:18px;margin-top:20px;">
+        총 합계: <span th:text="${#numbers.formatInteger(total, 0, 'COMMA')}"></span> 원
+    </p>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>판매하기 - PICK & GO</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="container section">
+    <p class="breadcrumb">Home &gt; 판매하기</p>
+    <h1 class="location-title" th:text="${location} ?: '전체 지역'">지역</h1>
+
+    <form th:action="@{/products}" method="get" class="search-bar">
+        <input type="hidden" name="location" th:value="${location}">
+        <input type="hidden" name="category" th:value="${category}">
+        <input type="hidden" name="maxPrice" th:value="${maxPrice}">
+        <input type="text" name="keyword" placeholder="Search" th:value="${keyword}">
+        <button type="submit">🔍</button>
+    </form>
+
+    <div class="products-layout">
+        <!-- 필터 사이드바 -->
+        <aside class="filter-box">
+
+            <div class="filter-group">
+                <h4>위치</h4>
+                <form th:action="@{/products}" method="get">
+                    <input type="hidden" name="keyword" th:value="${keyword}">
+                    <input type="hidden" name="category" th:value="${category}">
+                    <input type="hidden" name="maxPrice" th:value="${maxPrice}">
+                    <label><input type="radio" name="location" value="" onchange="this.form.submit()" th:checked="${location == null}"> 전체</label>
+                    <label><input type="radio" name="location" value="용산구" onchange="this.form.submit()" th:checked="${location == '용산구'}"> 용산구</label>
+                    <label><input type="radio" name="location" value="강남구" onchange="this.form.submit()" th:checked="${location == '강남구'}"> 강남구</label>
+                    <label><input type="radio" name="location" value="마포구" onchange="this.form.submit()" th:checked="${location == '마포구'}"> 마포구</label>
+                    <label><input type="radio" name="location" value="의정부시" onchange="this.form.submit()" th:checked="${location == '의정부시'}"> 의정부시</label>
+                    <label><input type="radio" name="location" value="종로구" onchange="this.form.submit()" th:checked="${location == '종로구'}"> 종로구</label>
+                </form>
+            </div>
+
+            <div class="filter-group">
+                <h4>가격</h4>
+                <form th:action="@{/products}" method="get">
+                    <input type="hidden" name="keyword" th:value="${keyword}">
+                    <input type="hidden" name="category" th:value="${category}">
+                    <input type="hidden" name="location" th:value="${location}">
+                    <label><input type="radio" name="maxPrice" value="" onchange="this.form.submit()" th:checked="${maxPrice == null}"> 전체</label>
+                    <label><input type="radio" name="maxPrice" value="100000" onchange="this.form.submit()" th:checked="${maxPrice == 100000}"> 10만원 이하</label>
+                    <label><input type="radio" name="maxPrice" value="300000" onchange="this.form.submit()" th:checked="${maxPrice == 300000}"> 30만원 이하</label>
+                    <label><input type="radio" name="maxPrice" value="500000" onchange="this.form.submit()" th:checked="${maxPrice == 500000}"> 50만원 이하</label>
+                </form>
+            </div>
+
+            <div class="filter-group">
+                <h4>카테고리</h4>
+                <form th:action="@{/products}" method="get">
+                    <input type="hidden" name="keyword" th:value="${keyword}">
+                    <input type="hidden" name="maxPrice" th:value="${maxPrice}">
+                    <input type="hidden" name="location" th:value="${location}">
+                    <label><input type="radio" name="category" value="" onchange="this.form.submit()" th:checked="${category == null}"> 전체</label>
+                    <label th:each="c : ${categories}">
+                        <input type="radio" name="category" th:value="${c}" onchange="this.form.submit()" th:checked="${category == c}">
+                        <span th:text="${c.displayName}">카테고리</span>
+                    </label>
+                </form>
+            </div>
+        </aside>
+
+        <!-- 상품 목록 -->
+        <div>
+            <p class="result-count" th:text="'Content (전체 ' + ${page.totalElements} + ')'">결과</p>
+            <div class="product-grid">
+                <a th:each="p : ${products}" class="product-card" th:href="@{'/products/' + ${p.id}}">
+                    <div class="thumb">
+                        <img th:if="${p.imageUrl}" th:src="${p.imageUrl}" alt="">
+                        <span th:unless="${p.imageUrl}" th:text="${p.category.displayName}">No Image</span>
+                    </div>
+                    <div class="info">
+                        <p class="name" th:text="${p.name}">상품명</p>
+                        <p class="desc" th:text="${p.description}">설명</p>
+                        <p class="price" th:text="${p.formattedPrice} + ' 원'">가격</p>
+                    </div>
+                </a>
+            </div>
+
+            <p th:if="${#lists.isEmpty(products)}" class="empty-state">조건에 맞는 상품이 없습니다.</p>
+
+            <!-- 페이지네이션: 현재 페이지 기준 ±2 -->
+            <div class="pagination" th:if="${page.totalPages > 1}">
+                <a th:if="${page.number > 0}"
+                   th:href="@{/products(location=${location}, keyword=${keyword}, category=${category}, maxPrice=${maxPrice}, page=${page.number})}">‹</a>
+
+                <th:block th:each="i : ${#numbers.sequence(
+                        T(java.lang.Math).max(1, page.number + 1 - 2),
+                        T(java.lang.Math).min(page.totalPages, page.number + 1 + 2))}">
+                    <span th:if="${i == page.number + 1}" class="current" th:text="${i}">1</span>
+                    <a th:unless="${i == page.number + 1}"
+                       th:href="@{/products(location=${location}, keyword=${keyword}, category=${category}, maxPrice=${maxPrice}, page=${i})}"
+                       th:text="${i}">1</a>
+                </th:block>
+
+                <a th:if="${page.number + 1 < page.totalPages}"
+                   th:href="@{/products(location=${location}, keyword=${keyword}, category=${category}, maxPrice=${maxPrice}, page=${page.number + 2})}">›</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>매칭 중 - PICK & GO</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="match-wrap container">
+
+    <!-- 진행 상태 바 -->
+    <div class="match-steps">
+        <div class="match-step done" id="step1">
+            <div class="step-circle">✓</div>
+            <span>요청 접수</span>
+        </div>
+        <div class="step-line" id="line1"></div>
+        <div class="match-step active" id="step2">
+            <div class="step-circle">2</div>
+            <span>매칭 중</span>
+        </div>
+        <div class="step-line" id="line2"></div>
+        <div class="match-step" id="step3">
+            <div class="step-circle">3</div>
+            <span>매칭 완료</span>
+        </div>
+    </div>
+
+    <div class="match-body">
+
+        <!-- 내 요청 카드 (좌) -->
+        <div class="my-request-card">
+            <div class="my-req-badge">내 요청</div>
+            <div class="my-req-img">
+                <img th:if="${product.imageUrl}" th:src="${product.imageUrl}" alt="">
+                <span th:unless="${product.imageUrl}" th:text="${product.category.displayName}" class="no-img-text"></span>
+            </div>
+            <div class="my-req-info">
+                <strong th:text="${product.name}">가구명</strong>
+                <span th:if="${product.location}" th:text="'📍 ' + ${product.location}">위치</span>
+                <span th:text="${product.category.displayName}">카테고리</span>
+            </div>
+            <div class="match-status-label" id="status-label">🔍 업체 탐색 중...</div>
+        </div>
+
+        <!-- 실시간 피드 (우) -->
+        <div class="live-feed">
+            <div class="feed-header">
+                <span class="live-dot"></span> 실시간 수거 현황
+            </div>
+            <div class="feed-list" id="feed-list">
+                <!-- JS로 동적 추가 -->
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 매칭 완료 오버레이 -->
+    <div class="match-complete-overlay" id="match-overlay" style="display:none">
+        <div class="match-complete-box">
+            <div class="match-truck-anim">🚚</div>
+            <h2>매칭되었습니다! 🎉</h2>
+            <p>담당 기사님이 배정되었습니다.</p>
+            <div class="driver-card">
+                <div class="driver-avatar">👷</div>
+                <div class="driver-info">
+                    <strong id="driver-name">김철수 기사님</strong>
+                    <span>⭐ 4.9 · 수거 완료 312건</span>
+                    <span id="arrive-time">도착 예정: 오늘 오후 3시</span>
+                </div>
+            </div>
+            <a href="/" class="btn btn-dark" style="margin-top:20px;display:block;text-align:center;">홈으로 돌아가기</a>
+        </div>
+    </div>
+
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script th:inline="javascript">
+    const myName     = /*[[${product.name}]]*/ '소파';
+    const myLocation = /*[[${product.location}]]*/ '서울';
+
+    // 가짜 실시간 피드 데이터
+    const fakeItems = [
+        { emoji:'🛋️', name:'3인용 소파', loc:'서울 마포구', status:'수거 완료', done:true },
+        { emoji:'📺', name:'55인치 TV', loc:'경기 수원시', status:'매칭 완료', done:true },
+        { emoji:'🛏️', name:'원목 퀸사이즈 침대', loc:'서울 용산구', status:'수거 중', done:false },
+        { emoji:'🪑', name:'사무용 회전 의자', loc:'인천 부평구', status:'매칭 완료', done:true },
+        { emoji:'🗄️', name:'화이트 책상', loc:'서울 강남구', status:'수거 완료', done:true },
+        { emoji:'🚪', name:'4도어 옷장', loc:'경기 성남시', status:'매칭 중', done:false },
+        { emoji:'📦', name:'수납장 세트', loc:'서울 노원구', status:'수거 완료', done:true },
+        { emoji:'🪵', name:'원형 거실 테이블', loc:'부산 해운대구', status:'매칭 완료', done:true },
+    ];
+
+    // 내 요청 먼저 피드에 추가
+    const feedList = document.getElementById('feed-list');
+    const myEl = document.createElement('div');
+    myEl.className = 'feed-item feed-mine';
+    myEl.innerHTML = `<span class="fi-emoji">📦</span>
+        <div class="fi-info"><strong>${myName}</strong><small>${myLocation || '위치 미입력'}</small></div>
+        <span class="fi-status st-pending">대기 중</span>`;
+    feedList.appendChild(myEl);
+
+    // 가짜 아이템 순서대로 추가
+    let fakeIdx = 0;
+    const feedInterval = setInterval(() => {
+        if (fakeIdx >= fakeItems.length) { clearInterval(feedInterval); return; }
+        const item = fakeItems[fakeIdx++];
+        const el = document.createElement('div');
+        el.className = 'feed-item feed-new';
+        el.innerHTML = `<span class="fi-emoji">${item.emoji}</span>
+            <div class="fi-info"><strong>${item.name}</strong><small>${item.loc}</small></div>
+            <span class="fi-status ${item.done ? 'st-done' : 'st-ing'}">${item.status}</span>`;
+        feedList.insertBefore(el, feedList.firstChild);
+        setTimeout(() => el.classList.remove('feed-new'), 400);
+    }, 1200);
+
+    // 진행 바 애니메이션 후 매칭 완료
+    setTimeout(() => {
+        document.getElementById('line1').classList.add('line-done');
+    }, 3000);
+
+    setTimeout(() => {
+        document.getElementById('status-label').textContent = '✅ 업체 배정 완료!';
+        myEl.querySelector('.fi-status').textContent = '매칭 완료';
+        myEl.querySelector('.fi-status').className = 'fi-status st-done';
+
+        document.getElementById('step2').className = 'match-step done';
+        document.getElementById('step2').querySelector('.step-circle').textContent = '✓';
+        document.getElementById('line2').classList.add('line-done');
+        document.getElementById('step3').className = 'match-step done active';
+        document.getElementById('step3').querySelector('.step-circle').textContent = '✓';
+
+        // 기사 이름 랜덤
+        const drivers = ['김철수', '이민준', '박성호', '최영재', '정동욱'];
+        document.getElementById('driver-name').textContent =
+            drivers[Math.floor(Math.random() * drivers.length)] + ' 기사님';
+
+        // 도착 시간 (지금부터 1~3시간 후)
+        const now = new Date();
+        now.setHours(now.getHours() + 1 + Math.floor(Math.random() * 2));
+        const h = now.getHours(), ampm = h < 12 ? '오전' : '오후';
+        document.getElementById('arrive-time').textContent =
+            `도착 예정: 오늘 ${ampm} ${h <= 12 ? h : h-12}시`;
+
+        setTimeout(() => {
+            document.getElementById('match-overlay').style.display = 'flex';
+        }, 600);
+    }, 8000);
+
+    // 매칭 완료 overlay 클릭 시 닫기 방지 (내부 클릭 버블 막기)
+    document.getElementById('match-overlay').addEventListener('click', function(e) {
+        if (e.target === this) this.style.display = 'none';
+    });
+</script>
+</body>
+</html>

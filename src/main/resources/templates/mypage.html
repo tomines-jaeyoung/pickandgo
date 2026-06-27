@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>마이페이지 - PICK & GO</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="container section" style="max-width:560px;">
+    <h2>마이페이지</h2>
+    <table class="simple-table">
+        <tr><th>이름</th><td th:text="${member.name}"></td></tr>
+        <tr><th>이메일</th><td th:text="${member.email}"></td></tr>
+        <tr><th>주소</th><td th:text="${member.address}"></td></tr>
+        <tr><th>결제방법</th><td th:text="${member.bank}"></td></tr>
+        <tr><th>가입일</th><td th:text="${#temporals.format(member.joinedAt, 'yyyy-MM-dd HH:mm')}"></td></tr>
+    </table>
+    <a href="/logout" class="btn btn-outline" style="margin-top:24px;">로그아웃</a>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

@@ -1,0 +1,27 @@
+package com.pickandgo.controller;
+
+import com.pickandgo.service.ProductService;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+
+/**
+ * 랜딩 페이지 컨트롤러.
+ * React의 1학기 HTML 랜딩페이지(가구 수거/보관/판매 애니메이션 소개)를
+ * Thymeleaf 정적 화면 + CSS 애니메이션으로 재구현.
+ */
+@Controller
+public class HomeController {
+
+    private final ProductService productService;
+
+    public HomeController(ProductService productService) {
+        this.productService = productService;
+    }
+
+    @GetMapping("/")
+    public String home(Model model) {
+        model.addAttribute("latestProducts", productService.findLatest(8).getContent());
+        return "index";
+    }
+}
