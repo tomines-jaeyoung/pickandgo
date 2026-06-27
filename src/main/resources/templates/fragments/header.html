@@ -18,8 +18,14 @@
             <a href="/contact">Contact</a>
         </nav>
         <div class="nav-actions">
-            <a class="btn btn-outline btn-sm" href="/login">Sign in</a>
-            <a class="btn btn-dark btn-sm" href="/register">Register</a>
+            <th:block th:if="${session.loginMember != null}">
+                <span class="btn btn-sm">👤 [[${session.loginMember.name}]]</span>
+                <a class="btn btn-outline btn-sm" href="/logout">로그아웃</a>
+            </th:block>
+            <th:block th:unless="${session.loginMember != null}">
+                <a class="btn btn-outline btn-sm" href="/login">Sign in</a>
+                <a class="btn btn-dark btn-sm" href="/register">Register</a>
+            </th:block>
         </div>
     </div>
 </header>

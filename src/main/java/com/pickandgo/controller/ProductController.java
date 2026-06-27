@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.servlet.http.HttpSession;
 import java.util.List;
 
 /**
@@ -40,7 +41,10 @@ public class ProductController {
                         @RequestParam(required = false) Category category,
                         @RequestParam(required = false) Integer maxPrice,
                         @RequestParam(defaultValue = "1") int page,
+                        HttpSession session,
                         Model model) {
+
+        if (session.getAttribute("loginMember") == null) return "redirect:/login";
 
         Page<Product> result = productService.search(location, keyword, category, maxPrice, page);
 
@@ -66,7 +70,8 @@ public class ProductController {
 
     /** 정리하기(Organize) - 업로드 폼 페이지 */
     @GetMapping("/organize")
-    public String organizeForm() {
+    public String organizeForm(HttpSession session) {
+        if (session.getAttribute("loginMember") == null) return "redirect:/login";
         return "organize";
     }
 

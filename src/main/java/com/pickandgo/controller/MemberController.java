@@ -53,7 +53,7 @@ public class MemberController {
         try {
             Member member = memberService.login(email, password);
             session.setAttribute("loginMember", member);
-            return "redirect:/mypage";
+            return "redirect:/";
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
             return "login";
