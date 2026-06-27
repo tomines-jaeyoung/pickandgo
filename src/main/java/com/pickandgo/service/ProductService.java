@@ -17,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -34,7 +35,6 @@ public class ProductService {
     public Page<Product> search(String location, String keyword, Category category, Integer maxPrice, int page) {
         Pageable pageable = PageRequest.of(Math.max(page - 1, 0), PAGE_SIZE);
 
-        // 공백 문자열은 "조건 없음"으로 취급 (React: !maxPrice 같은 falsy 체크와 동일)
         String loc = StringUtils.hasText(location) ? location : null;
         String kw = StringUtils.hasText(keyword) ? keyword : null;
 
@@ -54,19 +54,34 @@ public class ProductService {
     /** 수거용 등록 - onSale=false로 저장해서 판매 목록에 노출되지 않음 */
     @Transactional
     public Product registerForCollection(String name, int price, String description, Category category,
-                                          String location, MultipartFile imageFile, String uploadDir) {
+                                          String location, MultipartFile imageFile, String sellerEmail, String uploadDir) {
         String imageUrl = saveImage(imageFile, uploadDir);
         Product product = new Product(name, price, description, category, location, imageUrl, 0.0);
         product.setOnSale(false);
+        product.setSellerEmail(sellerEmail);
+        product.setStatus("수거대기");
         return productRepository.save(product);
     }
 
     @Transactional
     public Product register(String name, int price, String description, Category category,
-                             String location, MultipartFile imageFile, String uploadDir) {
+                             String location, MultipartFile imageFile, String sellerEmail, String uploadDir) {
         String imageUrl = saveImage(imageFile, uploadDir);
         Product product = new Product(name, price, description, category, location, imageUrl, 0.0);
+        product.setSellerEmail(sellerEmail);
+        product.setStatus("판매중");
         return productRepository.save(product);
+    }
+
+    @Transactional
+    public void completeSale(Long id) {
+        Product product = findById(id);
+        product.setOnSale(false);
+        product.setStatus("판매완료");
+    }
+
+    public List<Product> findBySellerEmail(String sellerEmail) {
+        return productRepository.findBySellerEmail(sellerEmail);
     }
 
     /**

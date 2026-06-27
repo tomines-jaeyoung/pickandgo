@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -53,5 +54,35 @@ public class CartController {
         model.addAttribute("items", items);
         model.addAttribute("total", total);
         return "cart";
+    }
+
+    @PostMapping("/cart/remove/{id}")
+    @SuppressWarnings("unchecked")
+    public String remove(@PathVariable Long id, HttpSession session) {
+        Set<Long> cart = (Set<Long>) session.getAttribute(CART_SESSION_KEY);
+        if (cart != null) {
+            cart.remove(id);
+            session.setAttribute(CART_SESSION_KEY, cart);
+        }
+        return "redirect:/cart";
+    }
+
+    @PostMapping("/cart/checkout")
+    @SuppressWarnings("unchecked")
+    public String checkout(@RequestParam("itemIds") List<Long> itemIds, HttpSession session, Model model) {
+        Set<Long> cart = (Set<Long>) session.getAttribute(CART_SESSION_KEY);
+        if (cart != null) {
+            cart.removeAll(itemIds);
+            session.setAttribute(CART_SESSION_KEY, cart);
+        }
+
+        List<Product> purchasedItems = itemIds.stream()
+                .map(productService::findById)
+                .collect(Collectors.toList());
+        int total = purchasedItems.stream().mapToInt(Product::getPrice).sum();
+
+        model.addAttribute("items", purchasedItems);
+        model.addAttribute("total", total);
+        return "cartComplete";
     }
 }

@@ -24,7 +24,7 @@
 
         <form th:action="@{'/cart/' + ${product.id}}" method="post" style="display:flex;gap:10px;">
             <button type="submit" class="btn btn-outline" style="flex:1;">장바구니에 추가</button>
-            <a th:href="@{/cart}" class="btn btn-primary" style="flex:1;text-align:center;">지금 구매</a>
+            <button type="submit" class="btn btn-primary" style="flex:1;">지금 구매</button>
         </form>
     </div>
 </div>

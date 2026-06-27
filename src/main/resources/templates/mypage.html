@@ -4,22 +4,275 @@
     <meta charset="UTF-8">
     <title>마이페이지 - PICK & GO</title>
     <link rel="stylesheet" href="/css/style.css">
+    <style>
+        /* 탭 버튼 스타일 */
+        .mypage-tabs {
+            display: flex;
+            gap: 20px;
+            border-bottom: 2px solid #edf2f7;
+            margin-bottom: 20px;
+            padding-bottom: 0;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 10px 5px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #718096;
+            cursor: pointer;
+            position: relative;
+            outline: none;
+            transition: color 0.2s;
+        }
+        .tab-btn:hover {
+            color: #1a1a1a;
+        }
+        .tab-btn.active {
+            color: #1a1a1a;
+            font-weight: 700;
+        }
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #1a1a1a;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 이쁜 상태 배지 스타일 */
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            text-align: center;
+        }
+        /* 보관 상태 */
+        .badge-status-접수 { background: #e2e8f0; color: #4a5568; }
+        .badge-status-보관중 { background: #ebf8ff; color: #2b6cb0; }
+        .badge-status-반환완료 { background: #f0fff4; color: #2f855a; }
+        /* 수거 상태 */
+        .badge-status-수거대기 { background: #feebc8; color: #c05621; }
+        .badge-status-수거완료 { background: #f0fff4; color: #2f855a; }
+        /* 판매 상태 */
+        .badge-status-판매중 { background: #fed7d7; color: #9b2c2c; }
+        .badge-status-판매완료 { background: #edf2f7; color: #4a5568; }
+    </style>
 </head>
 <body>
 <div th:replace="~{fragments/header :: header}"></div>
 
-<div class="container section" style="max-width:560px;">
-    <h2>마이페이지</h2>
-    <table class="simple-table">
-        <tr><th>이름</th><td th:text="${member.name}"></td></tr>
-        <tr><th>이메일</th><td th:text="${member.email}"></td></tr>
-        <tr><th>주소</th><td th:text="${member.address}"></td></tr>
-        <tr><th>결제방법</th><td th:text="${member.bank}"></td></tr>
-        <tr><th>가입일</th><td th:text="${#temporals.format(member.joinedAt, 'yyyy-MM-dd HH:mm')}"></td></tr>
-    </table>
-    <a href="/logout" class="btn btn-outline" style="margin-top:24px;">로그아웃</a>
+<div class="container section" style="max-width: 1040px; margin-bottom: 60px;">
+    <h2 style="text-align:center; margin-bottom:8px;">마이페이지</h2>
+    <p style="text-align:center; color:#6b6b6b; font-size:13px; margin-bottom:40px;">내 개인 정보와 신청 내역을 편리하게 확인하고 수정할 수 있습니다.</p>
+
+    <!-- 성공 메시지 얼럿 -->
+    <div th:if="${param.success}" style="background:#d4edda; color:#155724; border:1px solid #c3e6cb; padding:12px 18px; border-radius:6px; margin-bottom:24px; font-size:14px; font-weight:600; text-align:center;">
+        회원 정보가 성공적으로 수정되었습니다.
+    </div>
+
+    <!-- 에러 메시지 얼럿 -->
+    <div th:if="${error}" th:text="${error}" style="background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; padding:12px 18px; border-radius:6px; margin-bottom:24px; font-size:14px; font-weight:600; text-align:center;">
+    </div>
+
+    <div class="mypage-layout" style="display:flex; gap:36px; align-items: flex-start;">
+        <!-- 좌측: 내 정보 수정 -->
+        <div class="mypage-sidebar" style="flex:1; background:#fff; border:1px solid #e9ecef; border-radius:12px; padding:28px; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
+            <h3 style="font-size:16px; font-weight:700; margin-top:0; margin-bottom:20px; padding-bottom:10px; border-bottom:2px solid #1a1a1a; display:flex; align-items:center; gap:6px;">
+                👤 개인 정보 수정
+            </h3>
+            <form th:action="@{/mypage/update}" method="post">
+                <div class="form-group">
+                    <label>이름</label>
+                    <input type="text" name="name" th:value="${member.name}" required style="width:100%; box-sizing:border-box;">
+                </div>
+                <div class="form-group">
+                    <label>이메일</label>
+                    <input type="email" name="email" th:value="${member.email}" required style="width:100%; box-sizing:border-box;">
+                </div>
+                <div class="form-group">
+                    <label>새 비밀번호 <small style="color:#888; font-weight:normal;">(변경 시에만 입력)</small></label>
+                    <input type="password" name="password" placeholder="새 비밀번호 입력" style="width:100%; box-sizing:border-box;">
+                </div>
+                <div class="form-group">
+                    <label>주소</label>
+                    <input type="text" name="address" th:value="${member.address}" required style="width:100%; box-sizing:border-box;">
+                </div>
+                <div class="form-group">
+                    <label>주거래 은행</label>
+                    <select name="bank" style="width:100%; box-sizing:border-box; padding:10px; border:1px solid #ddd; border-radius:4px;">
+                        <option value="하나은행" th:selected="${member.bank == '하나은행'}">하나은행</option>
+                        <option value="국민은행" th:selected="${member.bank == '국민은행'}">국민은행</option>
+                        <option value="신한은행" th:selected="${member.bank == '신한은행'}">신한은행</option>
+                        <option value="카카오뱅크" th:selected="${member.bank == '카카오뱅크'}">카카오뱅크</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-dark" style="width:100%; margin-top:14px;">회원 정보 수정</button>
+            </form>
+        </div>
+
+        <!-- 우측: 신청 내역 및 장바구니 요약 -->
+        <div class="mypage-content" style="flex:2; display:flex; flex-direction:column; gap:28px;">
+            
+            <!-- 우측 상단: 내 신청 및 거래 탭 -->
+            <div style="background:#fff; border:1px solid #e9ecef; border-radius:12px; padding:28px; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
+                <div class="mypage-tabs">
+                    <button class="tab-btn active" onclick="switchTab('tab-storage')">📦 보관 내역 (<span th:text="${#lists.size(storageRequests)}">0</span>)</button>
+                    <button class="tab-btn" onclick="switchTab('tab-organize')">🚚 정리 수거 내역 (<span th:text="${#lists.size(cleanupList)}">0</span>)</button>
+                    <button class="tab-btn" onclick="switchTab('tab-sell')">🤝 중고판매 관리 (<span th:text="${#lists.size(marketList)}">0</span>)</button>
+                </div>
+
+                <!-- 1. 보관 내역 탭 -->
+                <div id="tab-storage" class="tab-content active">
+                    <p th:if="${#lists.isEmpty(storageRequests)}" style="color:#888; font-size:13px; text-align:center; padding:30px 0;">보관 신청 내역이 없습니다.</p>
+                    <table class="simple-table" th:unless="${#lists.isEmpty(storageRequests)}" style="font-size:13px; width:100%;">
+                        <thead>
+                            <tr>
+                                <th>물건명</th>
+                                <th>보관 일정</th>
+                                <th>총 비용</th>
+                                <th style="width:80px; text-align:center;">상태</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="storageItem : ${storageRequests}">
+                                <td>
+                                    <span th:text="${storageItem.itemName}" style="font-weight:600; color:#1a1a1a;"></span>
+                                    <small th:text="' (' + ${storageItem.weight} + 'kg)'" style="color:#6b6b6b;"></small>
+                                </td>
+                                <td th:text="${storageItem.startDate} + ' ~ ' + ${storageItem.endDate}"></td>
+                                <td th:text="${#numbers.formatInteger(storageItem.totalCost, 0, 'COMMA')} + ' 원'" style="font-weight:bold;"></td>
+                                <td style="text-align:center;">
+                                    <span th:text="${storageItem.status}" th:class="'badge badge-status-' + ${storageItem.status}">접수</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 2. 정리 수거 내역 탭 -->
+                <div id="tab-organize" class="tab-content">
+                    <p th:if="${#lists.isEmpty(cleanupList)}" style="color:#888; font-size:13px; text-align:center; padding:30px 0;">정리 수거 신청 내역이 없습니다.</p>
+                    <table class="simple-table" th:unless="${#lists.isEmpty(cleanupList)}" style="font-size:13px; width:100%;">
+                        <thead>
+                            <tr>
+                                <th style="width:60px;">사진</th>
+                                <th>가구명</th>
+                                <th>신청 지역</th>
+                                <th style="width:90px; text-align:center;">수거 상태</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="cleanItem : ${cleanupList}">
+                                <td>
+                                    <img th:if="${cleanItem.imageUrl}" th:src="${cleanItem.imageUrl}" style="width:40px; height:40px; object-fit:cover; border-radius:4px; border:1px solid #edf2f7;">
+                                </td>
+                                <td>
+                                    <span th:text="${cleanItem.name}" style="font-weight:600; color:#1a1a1a;"></span><br>
+                                    <small th:text="${cleanItem.category.displayName}" style="color:#718096;"></small>
+                                </td>
+                                <td th:text="${cleanItem.location}"></td>
+                                <td style="text-align:center;">
+                                    <span th:text="${cleanItem.status}" th:class="'badge badge-status-' + ${cleanItem.status}">수거대기</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 3. 중고판매 관리 탭 -->
+                <div id="tab-sell" class="tab-content">
+                    <p th:if="${#lists.isEmpty(marketList)}" style="color:#888; font-size:13px; text-align:center; padding:30px 0;">등록한 중고 판매 상품이 없습니다.</p>
+                    <table class="simple-table" th:unless="${#lists.isEmpty(marketList)}" style="font-size:13px; width:100%;">
+                        <thead>
+                            <tr>
+                                <th style="width:60px;">사진</th>
+                                <th>가구명</th>
+                                <th>등록 금액</th>
+                                <th style="width:80px; text-align:center;">판매 상태</th>
+                                <th style="width:100px; text-align:center;">관리</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="prod : ${marketList}">
+                                <td>
+                                    <img th:if="${prod.imageUrl}" th:src="${prod.imageUrl}" style="width:40px; height:40px; object-fit:cover; border-radius:4px; border:1px solid #edf2f7;">
+                                </td>
+                                <td>
+                                    <a th:href="@{'/products/' + ${prod.id}}" th:text="${prod.name}" style="font-weight:600; text-decoration:none; color:#0056b3;"></a><br>
+                                    <small th:text="${prod.category.displayName}" style="color:#718096;"></small>
+                                </td>
+                                <td th:text="${prod.formattedPrice} + ' 원'" style="font-weight:bold;"></td>
+                                <td style="text-align:center;">
+                                    <span th:text="${prod.status}" th:class="'badge badge-status-' + ${prod.status}">판매중</span>
+                                </td>
+                                <td style="text-align:center;">
+                                    <form th:if="${prod.status == '판매중'}" th:action="@{'/products/' + ${prod.id} + '/complete'}" method="post">
+                                        <button type="submit" class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11px; border-radius:4px;">판매완료 처리</button>
+                                    </form>
+                                    <span th:unless="${prod.status == '판매중'}" style="color:#888; font-size:12px;">-</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 우측 하단: 장바구니 요약 -->
+            <div style="background:#fff; border:1px solid #e9ecef; border-radius:12px; padding:28px; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e9ecef; padding-bottom:10px; margin-bottom:16px;">
+                    <h3 style="font-size:16px; font-weight:700; margin:0; display:flex; align-items:center; gap:6px;">
+                        🛒 장바구니 보관함
+                    </h3>
+                    <a href="/cart" style="font-size:12px; color:#0056b3; font-weight:600; text-decoration:none;">장바구니 전체보기 ➔</a>
+                </div>
+
+                <p th:if="${#lists.isEmpty(cartItems)}" style="color:#888; font-size:13px; text-align:center; padding:30px 0;">장바구니가 비어있습니다.</p>
+
+                <div th:unless="${#lists.isEmpty(cartItems)}" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:16px;">
+                    <div th:each="c : ${cartItems}" style="border:1px solid #edf2f7; border-radius:8px; padding:12px; display:flex; gap:10px; align-items:center; background:#fafafa;">
+                        <img th:if="${c.imageUrl}" th:src="${c.imageUrl}" style="width:46px; height:46px; object-fit:cover; border-radius:4px; border:1px solid #e2e8f0;">
+                        <div style="flex:1; min-width:0;">
+                            <h4 th:text="${c.name}" style="font-size:12px; margin:0 0 3px; font-weight:600; color:#1a1a1a; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">가구명</h4>
+                            <span th:text="${c.formattedPrice} + ' 원'" style="font-size:11px; font-weight:700; color:#e03131;">가격</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
 </div>
 
 <div th:replace="~{fragments/footer :: footer}"></div>
+
+<script>
+    function switchTab(tabId) {
+        // 모든 탭 콘텐츠 숨기기
+        const contents = document.querySelectorAll('.tab-content');
+        contents.forEach(content => content.classList.remove('active'));
+
+        // 모든 탭 버튼 비활성화
+        const buttons = document.querySelectorAll('.tab-btn');
+        buttons.forEach(btn => btn.classList.remove('active'));
+
+        // 선택된 탭 활성화
+        document.getElementById(tabId).classList.add('active');
+        
+        // 클릭한 버튼 활성화
+        const activeBtn = Array.from(buttons).find(btn => btn.getAttribute('onclick').includes(tabId));
+        if (activeBtn) activeBtn.classList.add('active');
+    }
+</script>
 </body>
 </html>

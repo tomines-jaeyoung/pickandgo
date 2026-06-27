@@ -1,6 +1,7 @@
 package com.pickandgo.controller;
 
 import com.pickandgo.domain.Category;
+import com.pickandgo.domain.Member;
 import com.pickandgo.domain.Product;
 import com.pickandgo.service.ProductService;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,11 +16,6 @@ import java.util.List;
 
 /**
  * 중고판매(Products) 페이지 + 물건 업로드(Organize) 페이지 컨트롤러.
- *
- * React SellPage.jsx의 다중조건 필터링(지역->검색어->카테고리->가격)을
- * ProductService.search() 호출 한 줄로 대체했고,
- * React useMemo의 "리렌더링 시 재연산 방지" 의도는
- * 여기서는 DB 쿼리 자체가 필요한 데이터만 가져오는 것으로 대응한다.
  */
 @Controller
 @RequestMapping
@@ -52,7 +48,6 @@ public class ProductController {
         model.addAttribute("page", result);
         model.addAttribute("categories", Category.values());
 
-        // 검색폼 값 유지 (React의 controlled input value 대응)
         model.addAttribute("location", location);
         model.addAttribute("keyword", keyword);
         model.addAttribute("category", category);
@@ -61,7 +56,7 @@ public class ProductController {
         return "products";
     }
 
-    /** 상품 상세 (React의 ProductDetailModal -> 별도 페이지로 구현) */
+    /** 상품 상세 */
     @GetMapping("/products/{id}")
     public String detail(@PathVariable Long id, Model model) {
         model.addAttribute("product", productService.findById(id));
@@ -83,24 +78,39 @@ public class ProductController {
                                    @RequestParam(required = false) Category category,
                                    @RequestParam(required = false) String location,
                                    @RequestParam(required = false) MultipartFile image,
+                                   HttpSession session,
                                    Model model) {
         if (category == null) category = Category.ETC;
-        Product saved = productService.registerForCollection(name, price, description, category, location, image, uploadDir);
+        Member loginMember = (Member) session.getAttribute("loginMember");
+        String sellerEmail = (loginMember != null) ? loginMember.getEmail() : null;
+
+        Product saved = productService.registerForCollection(name, price, description, category, location, image, sellerEmail, uploadDir);
         model.addAttribute("product", saved);
         return "organizeMatch";
     }
 
-
+    @PostMapping("/organize")
     public String organizeSubmit(@RequestParam String name,
                                   @RequestParam int price,
                                   @RequestParam(required = false) String description,
                                   @RequestParam Category category,
                                   @RequestParam String location,
                                   @RequestParam(required = false) MultipartFile image,
+                                  HttpSession session,
                                   Model model) {
+        Member loginMember = (Member) session.getAttribute("loginMember");
+        String sellerEmail = (loginMember != null) ? loginMember.getEmail() : null;
 
-        Product saved = productService.register(name, price, description, category, location, image, uploadDir);
+        Product saved = productService.register(name, price, description, category, location, image, sellerEmail, uploadDir);
         model.addAttribute("product", saved);
         return "redirect:/products/" + saved.getId();
+    }
+
+    /** 판매 완료 처리 */
+    @PostMapping("/products/{id}/complete")
+    public String completeProductSale(@PathVariable Long id, HttpSession session) {
+        if (session.getAttribute("loginMember") == null) return "redirect:/login";
+        productService.completeSale(id);
+        return "redirect:/mypage";
     }
 }

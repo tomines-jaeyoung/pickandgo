@@ -171,6 +171,23 @@ const PG = (() => {
   // ── 벨트 아이템 ───────────────────────────────────────────
   function spawnBeltItem(furniture) {
     if (!beltEl) return;
+
+    // 벨트 위 다른 아이템과의 최소 간격 체크 (겹침 방지)
+    let minPos = 100;
+    S.beltItems.forEach(item => {
+      if (item.pos < minPos) {
+        minPos = item.pos;
+      }
+    });
+
+    const MIN_GAP = 20; // 최소 안전 간격 (%)
+    if (minPos < MIN_GAP) {
+      // 1초당 4.4%씩 이동하므로 부족한 거리만큼 환산하여 자연스러운 지연 시간 산출
+      const delay = Math.max(400, ((MIN_GAP - minPos) / 4.4) * 1000);
+      setTimeout(() => spawnBeltItem(furniture), delay);
+      return;
+    }
+
     const id = S._id++;
     const el = document.createElement('div');
     el.className = 'belt-item-el';

@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
@@ -33,4 +34,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     /** 랜딩페이지 Sale 슬라이더용 - 최신 등록 N개 */
     Page<Product> findByOnSaleTrueOrderByIdDesc(Pageable pageable);
+
+    List<Product> findBySellerEmail(String sellerEmail);
 }

@@ -32,4 +32,23 @@ public class MemberService {
         }
         return member;
     }
+
+    @Transactional
+    public Member update(Long id, String name, String address, String email, String password, String bank) {
+        Member member = memberRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+
+        if (!member.getEmail().equals(email) && memberRepository.existsByEmail(email)) {
+            throw new IllegalStateException("이미 가입된 이메일입니다: " + email);
+        }
+
+        member.setName(name);
+        member.setAddress(address);
+        member.setEmail(email);
+        if (password != null && !password.trim().isEmpty()) {
+            member.setPassword(password);
+        }
+        member.setBank(bank);
+        return member;
+    }
 }

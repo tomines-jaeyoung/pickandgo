@@ -55,6 +55,10 @@ public class StorageService {
         return storageRequestRepository.save(request);
     }
 
+    public List<StorageRequest> findByEmail(String email) {
+        return storageRequestRepository.findByEmail(email);
+    }
+
     private String saveImage(MultipartFile file, String uploadDir) {
         if (file == null || file.isEmpty()) {
             return null;

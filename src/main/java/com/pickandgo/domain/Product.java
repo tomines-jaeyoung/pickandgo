@@ -40,6 +40,9 @@ public class Product {
     /** true: 판매중, false: 판매완료 */
     private boolean onSale = true;
 
+    private String sellerEmail;   // 판매자/등록자 이메일
+    private String status = "판매중"; // 진행 상태: 판매중 / 판매완료 / 수거대기 / 수거완료 등
+
     private LocalDateTime createdAt;
 
     protected Product() {
@@ -92,6 +95,12 @@ public class Product {
 
     public boolean isOnSale() { return onSale; }
     public void setOnSale(boolean onSale) { this.onSale = onSale; }
+
+    public String getSellerEmail() { return sellerEmail; }
+    public void setSellerEmail(String sellerEmail) { this.sellerEmail = sellerEmail; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
 
