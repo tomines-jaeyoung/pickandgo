@@ -142,19 +142,45 @@
     const previewImg = document.getElementById('previewImg');
     const dropLabel = document.getElementById('dropLabel');
 
-    ['dragenter', 'dragover'].forEach(evt =>
-        dropZone.addEventListener(evt, (e) => { e.preventDefault(); e.stopPropagation(); dropZone.classList.add('active'); })
-    );
-    ['dragleave', 'drop'].forEach(evt =>
-        dropZone.addEventListener(evt, (e) => { e.preventDefault(); e.stopPropagation(); dropZone.classList.remove('active'); })
-    );
-    dropZone.addEventListener('drop', (e) => { const file = e.dataTransfer.files[0]; if (file) setFile(file); });
-    imageInput.addEventListener('change', (e) => { const file = e.target.files[0]; if (file) setFile(file); });
-    
+    // 드래그오버 시 피드백 스타일 적용
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.style.border = "2px dashed #ff6b6b";
+        dropZone.style.borderRadius = "12px";
+        dropZone.style.background = "#fff9f6";
+        dropZone.style.padding = "20px";
+        dropZone.style.transition = "all 0.2s";
+    });
+
+    const resetDragStyle = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.style.border = "none";
+        dropZone.style.background = "transparent";
+        dropZone.style.padding = "0";
+    };
+
+    dropZone.addEventListener('dragleave', resetDragStyle);
+    dropZone.addEventListener('drop', (e) => {
+        resetDragStyle(e);
+        const file = e.dataTransfer.files[0];
+        if (file) setFile(file);
+    });
+
+    imageInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) setFile(file);
+    });
+
     function setFile(file) {
-        const dt = new DataTransfer(); dt.items.add(file); imageInput.files = dt.files;
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        imageInput.files = dt.files;
         const reader = new FileReader();
-        reader.onload = (e) => { previewImg.src = e.target.result; };
+        reader.onload = (e) => {
+            previewImg.src = e.target.result;
+        };
         reader.readAsDataURL(file);
     }
 
