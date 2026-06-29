@@ -19,4 +19,8 @@ public class InquiryService {
     public Inquiry submit(String name, String email, String title, String content) {
         return inquiryRepository.save(new Inquiry(name, email, title, content));
     }
+
+    public java.util.List<Inquiry> findAll() {
+        return inquiryRepository.findAll();
+    }
 }

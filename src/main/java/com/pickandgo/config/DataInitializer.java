@@ -17,9 +17,11 @@ import java.util.Map;
 public class DataInitializer implements CommandLineRunner {
 
     private final ProductRepository productRepository;
+    private final com.pickandgo.repository.MemberRepository memberRepository;
 
-    public DataInitializer(ProductRepository productRepository) {
+    public DataInitializer(ProductRepository productRepository, com.pickandgo.repository.MemberRepository memberRepository) {
         this.productRepository = productRepository;
+        this.memberRepository = memberRepository;
     }
 
     /** 카테고리별 로컬 일러스트 이미지 경로 */
@@ -45,6 +47,10 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        if (!memberRepository.existsByEmail("aisw")) {
+            memberRepository.save(new com.pickandgo.domain.Member("관리자", "서울특별시 중구", "aisw", "@Polytech", "국민은행"));
+        }
+
         if (productRepository.count() >= 4000) {
             return; // 이미 데이터가 충분히 세팅되어 있으면 스킵
         }

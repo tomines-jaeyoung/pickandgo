@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>관리자 마이페이지 - PICK & GO</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .inquiry-content-row {
+            display: none;
+            background: #fafafa;
+        }
+        .inquiry-content-row.active {
+            display: table-row;
+        }
+        .inquiry-content-box {
+            padding: 16px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #4a5568;
+            border-bottom: 1px solid #e2e8f0;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="container section" style="max-width: 960px; margin-bottom: 60px;">
+    <h2 style="text-align:center; margin-bottom:8px;">관리자 마이페이지</h2>
+    <p style="text-align:center; color:#6b6b6b; font-size:13px; margin-bottom:40px;">✉️ 문의메일함 - 사용자들이 등록한 문의 메세지 내역을 열람할 수 있습니다.</p>
+
+    <div style="background:#fff; border:1px solid #e9ecef; border-radius:12px; padding:28px; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
+        <p th:if="${#lists.isEmpty(inquiries)}" style="color:#888; font-size:14px; text-align:center; padding:50px 0;">접수된 문의 내역이 없습니다.</p>
+        
+        <table class="simple-table" th:unless="${#lists.isEmpty(inquiries)}" style="width:100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background:#f8f9fa;">
+                    <th style="padding:12px; border-bottom:2px solid #e2e8f0; font-weight:700; width:120px;">보낸이</th>
+                    <th style="padding:12px; border-bottom:2px solid #e2e8f0; font-weight:700; width:180px;">이메일</th>
+                    <th style="padding:12px; border-bottom:2px solid #e2e8f0; font-weight:700;">제목</th>
+                    <th style="padding:12px; border-bottom:2px solid #e2e8f0; font-weight:700; width:160px; text-align:center;">접수 일시</th>
+                </tr>
+            </thead>
+            <tbody>
+                <th:block th:each="inq : ${inquiries}">
+                    <!-- 기본 정보 행 -->
+                    <tr th:id="'inq-row-' + ${inq.id}" onclick="toggleInquiry(this.getAttribute('data-id'))" th:data-id="${inq.id}" style="cursor:pointer; transition: background 0.1s;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='transparent'">
+                        <td style="padding:14px 12px; font-weight:600;" th:text="${inq.name}">이름</td>
+                        <td style="padding:14px 12px; color:#4a5568;" th:text="${inq.email}">이메일</td>
+                        <td style="padding:14px 12px; color:#1a1a1a; font-weight:500;">
+                            <span th:text="${inq.title}">제목</span>
+                            <span style="font-size:11px; margin-left:8px; color:#a0aec0;">[클릭하여 내용보기]</span>
+                        </td>
+                        <td style="padding:14px 12px; text-align:center; color:#718096;" th:text="${#temporals.format(inq.createdAt, 'yyyy-MM-dd HH:mm')}">시간</td>
+                    </tr>
+                    <!-- 본문 확장 행 -->
+                    <tr th:id="'inq-content-' + ${inq.id}" class="inquiry-content-row">
+                        <td colspan="4">
+                            <div class="inquiry-content-box">
+                                <div style="font-weight:700; margin-bottom:8px; color:#2d3748;">문의 내용:</div>
+                                <div th:text="${inq.content}">내용</div>
+                            </div>
+                        </td>
+                    </tr>
+                </th:block>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script>
+    function toggleInquiry(id) {
+        const contentRow = document.getElementById('inq-content-' + id);
+        if (contentRow) {
+            contentRow.classList.toggle('active');
+        }
+    }
+</script>
+</body>
+</html>

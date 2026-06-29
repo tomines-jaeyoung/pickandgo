@@ -23,11 +23,13 @@ public class MemberController {
     private final MemberService memberService;
     private final StorageService storageService;
     private final ProductService productService;
+    private final com.pickandgo.service.InquiryService inquiryService;
 
-    public MemberController(MemberService memberService, StorageService storageService, ProductService productService) {
+    public MemberController(MemberService memberService, StorageService storageService, ProductService productService, com.pickandgo.service.InquiryService inquiryService) {
         this.memberService = memberService;
         this.storageService = storageService;
         this.productService = productService;
+        this.inquiryService = inquiryService;
     }
 
     @GetMapping("/register")
@@ -84,6 +86,12 @@ public class MemberController {
         Member loginMember = (Member) session.getAttribute("loginMember");
         if (loginMember == null) {
             return "redirect:/login";
+        }
+
+        if ("aisw".equals(loginMember.getEmail())) {
+            model.addAttribute("inquiries", inquiryService.findAll());
+            model.addAttribute("member", loginMember);
+            return "adminMypage";
         }
 
         // 수거대기 상태 자동 갱신
