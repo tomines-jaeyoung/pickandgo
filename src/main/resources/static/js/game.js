@@ -26,6 +26,23 @@ const PG = (() => {
 
   // ── 저장/로드 ─────────────────────────────────────────────
   function loadSaved() {
+    const savedStartupId = localStorage.getItem("pg_startup_id");
+    const currentStartupId = window.APP_STARTUP_ID || "";
+    
+    if (savedStartupId !== currentStartupId) {
+      localStorage.removeItem("pg_game_state");
+      localStorage.setItem("pg_startup_id", currentStartupId);
+    } else {
+      const savedData = localStorage.getItem("pg_game_state");
+      if (savedData) {
+        try {
+          return JSON.parse(savedData);
+        } catch (e) {
+          console.error("Failed to parse saved game state:", e);
+        }
+      }
+    }
+    
     return {
       stars: 0,
       levels: { organize: 1, storage: 1, sell: 1 },
@@ -33,7 +50,12 @@ const PG = (() => {
     };
   }
   function save() {
-    // 새로고침 시 초기화 - 저장 안 함
+    const dataToSave = {
+      stars: S.stars,
+      levels: S.levels,
+      containers: S.containers
+    };
+    localStorage.setItem("pg_game_state", JSON.stringify(dataToSave));
   }
 
   // ── 게임 상태 ─────────────────────────────────────────────
