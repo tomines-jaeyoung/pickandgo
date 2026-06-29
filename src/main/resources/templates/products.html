@@ -70,19 +70,7 @@
                 <div style="margin-top:8px;">
                     <h4 style="font-size:13px; font-weight:700; color:#228be6; margin:0 0 10px 0;">추천</h4>
                     <div id="locListContainer" style="max-height:260px; overflow-y:auto; display:flex; flex-direction:column;">
-                        <div class="loc-item" onclick="selectLoc('신당동')" style="padding:12px; border-bottom:1px solid #f1f3f5; cursor:pointer; font-size:14px; font-weight:500; color:#495057; transition:background 0.1s;">서울특별시 중구 신당동</div>
-                        <div class="loc-item" onclick="selectLoc('의정부시')" style="padding:12px; border-bottom:1px solid #f1f3f5; cursor:pointer; font-size:14px; font-weight:500; color:#495057; transition:background 0.1s;">경기도 의정부시 가능동</div>
-                        <div class="loc-item" onclick="selectLoc('용산구')" style="padding:12px; border-bottom:1px solid #f1f3f5; cursor:pointer; font-size:14px; font-weight:500; color:#495057; transition:background 0.1s;">서울특별시 용산구 보광동</div>
-                        <div class="loc-item" onclick="selectLoc('강남구')" style="padding:12px; border-bottom:1px solid #f1f3f5; cursor:pointer; font-size:14px; font-weight:500; color:#495057; transition:background 0.1s;">서울특별시 강남구 역삼동</div>
-                        <div class="loc-item" onclick="selectLoc('마포구')" style="padding:12px; border-bottom:1px solid #f1f3f5; cursor:pointer; font-size:14px; font-weight:500; color:#495057; transition:background 0.1s;">서울특별시 마포구 서교동</div>
-                        <div class="loc-item" onclick="selectLoc('종로구')" style="padding:12px; border-bottom:1px solid #f1f3f5; cursor:pointer; font-size:14px; font-weight:500; color:#495057; transition:background 0.1s;">서울특별시 종로구 효자동</div>
-                        <div class="loc-item" onclick="selectLoc('송도동')" style="padding:12px; border-bottom:1px solid #f1f3f5; cursor:pointer; font-size:14px; font-weight:500; color:#495057; transition:background 0.1s;">인천광역시 연수구 송도동</div>
-                        <div class="loc-item" onclick="selectLoc('물금읍')" style="padding:12px; border-bottom:1px solid #f1f3f5; cursor:pointer; font-size:14px; font-weight:500; color:#495057; transition:background 0.1s;">경상남도 양산시 물금읍</div>
-                        <div class="loc-item" onclick="selectLoc('봉담읍')" style="padding:12px; border-bottom:1px solid #f1f3f5; cursor:pointer; font-size:14px; font-weight:500; color:#495057; transition:background 0.1s;">경기도 화성시 봉담읍</div>
-                        <div class="loc-item" onclick="selectLoc('배방읍')" style="padding:12px; border-bottom:1px solid #f1f3f5; cursor:pointer; font-size:14px; font-weight:500; color:#495057; transition:background 0.1s;">충청남도 아산시 배방읍</div>
-                        <div class="loc-item" onclick="selectLoc('서초동')" style="padding:12px; border-bottom:1px solid #f1f3f5; cursor:pointer; font-size:14px; font-weight:500; color:#495057; transition:background 0.1s;">서울특별시 서초구 서초동</div>
-                        <div class="loc-item" onclick="selectLoc('옥정동')" style="padding:12px; border-bottom:1px solid #f1f3f5; cursor:pointer; font-size:14px; font-weight:500; color:#495057; transition:background 0.1s;">경기도 양주시 옥정동</div>
-                        <div class="loc-item" onclick="selectLoc('신림동')" style="padding:12px; border-bottom:1px solid #f1f3f5; cursor:pointer; font-size:14px; font-weight:500; color:#495057; transition:background 0.1s;">서울특별시 관악구 신림동</div>
+                        <!-- JS로 상위/하위 전체 세부지역 동적 출력 -->
                     </div>
                 </div>
             </div>
@@ -339,6 +327,36 @@
                 
                 listContainer.appendChild(label);
             });
+
+            // 모달 내 지역 검색 추천 리스트 동적 생성 (1번 피드백 반영)
+            const modalListContainer = document.getElementById("locListContainer");
+            if (modalListContainer) {
+                modalListContainer.innerHTML = "";
+                regionMapping.forEach(r => {
+                    // 1. 상위 지역 전체 옵션 추가
+                    const parentDiv = document.createElement("div");
+                    parentDiv.className = "loc-item";
+                    parentDiv.textContent = `${r.parent} 전체`;
+                    parentDiv.style.cssText = "padding:12px; border-bottom:1px solid #f1f3f5; cursor:pointer; font-size:14px; font-weight:700; color:#1a1a1a; transition:background 0.1s;";
+                    parentDiv.onclick = () => selectLoc(r.parentVal);
+                    parentDiv.onmouseover = () => { parentDiv.style.background = "#edf2f7"; };
+                    parentDiv.onmouseout = () => { parentDiv.style.background = "transparent"; };
+                    modalListContainer.appendChild(parentDiv);
+
+                    // 2. 하위 동/읍/면 리스트 추가
+                    r.dongs.forEach(d => {
+                        if (d.name === "전체") return;
+                        const childDiv = document.createElement("div");
+                        childDiv.className = "loc-item";
+                        childDiv.textContent = `${r.parent} ${d.name}`;
+                        childDiv.style.cssText = "padding:12px; border-bottom:1px solid #f1f3f5; cursor:pointer; font-size:14px; font-weight:500; color:#495057; transition:background 0.1s;";
+                        childDiv.onclick = () => selectLoc(d.val);
+                        childDiv.onmouseover = () => { childDiv.style.background = "#edf2f7"; };
+                        childDiv.onmouseout = () => { childDiv.style.background = "transparent"; };
+                        modalListContainer.appendChild(childDiv);
+                    });
+                });
+            }
         });
     </script>
 
