@@ -57,6 +57,10 @@ public class ProductService {
         return productRepository.findByOnSaleTrueOrderByIdDesc(PageRequest.of(0, count));
     }
 
+    public Page<Product> findLatestPaged(int page, int size) {
+        return productRepository.findByOnSaleTrueOrderByIdDesc(PageRequest.of(Math.max(page - 1, 0), size));
+    }
+
     /** 수거용 등록 - onSale=false로 저장해서 판매 목록에 노출되지 않음 */
     @Transactional
     public Product registerForCollection(String name, int price, String description, Category category,

@@ -100,6 +100,48 @@
         </a>
         <p th:if="${#lists.isEmpty(latestProducts)}" class="empty-state">등록된 상품이 없습니다.</p>
     </div>
+
+    <!-- 페이지네이션 (5번 사진 스타일) -->
+    <div class="custom-pagination" th:if="${page.totalPages > 1}" style="display:flex; justify-content:center; align-items:center; gap:8px; margin-top:40px; font-family:'Inter', sans-serif;">
+        <!-- Previous 버튼 -->
+        <a th:if="${page.number > 0}"
+           th:href="@{/(page=${page.number})}"
+           style="text-decoration:none; color:#718096; font-size:13px; font-weight:500; display:flex; align-items:center; gap:4px; padding:6px 12px; border-radius:6px; border:1px solid transparent; transition:all 0.2s;">
+           &larr; Previous
+        </a>
+        <span th:unless="${page.number > 0}"
+              style="color:#cbd5e0; font-size:13px; font-weight:500; display:flex; align-items:center; gap:4px; padding:6px 12px; cursor:not-allowed;">
+              &larr; Previous
+        </span>
+
+        <!-- 페이지 번호 -->
+        <th:block th:each="i : ${#numbers.sequence(1, page.totalPages)}">
+            <!-- 현재 페이지 -->
+            <span th:if="${i == page.number + 1}"
+                  style="width:32px; height:32px; display:flex; align-items:center; justify-content:center; background:#1a1a1a; color:#fff; border-radius:6px; font-size:13px; font-weight:600; border:1px solid #1a1a1a;">
+                  [[${i}]]
+            </span>
+            <!-- 다른 페이지 -->
+            <a th:unless="${i == page.number + 1}"
+               th:href="@{/(page=${i})}"
+               style="width:32px; height:32px; display:flex; align-items:center; justify-content:center; color:#4a5568; border-radius:6px; font-size:13px; font-weight:500; text-decoration:none; border:1px solid transparent; transition:all 0.2s;"
+               onmouseover="this.style.background='#edf2f7'; this.style.borderColor='#edf2f7';"
+               onmouseout="this.style.background='transparent'; this.style.borderColor='transparent';">
+               [[${i}]]
+            </a>
+        </th:block>
+
+        <!-- Next 버튼 -->
+        <a th:if="${page.number + 1 < page.totalPages}"
+           th:href="@{/(page=${page.number + 2})}"
+           style="text-decoration:none; color:#718096; font-size:13px; font-weight:500; display:flex; align-items:center; gap:4px; padding:6px 12px; border-radius:6px; border:1px solid transparent; transition:all 0.2s;">
+           Next &rarr;
+        </a>
+        <span th:unless="${page.number + 1 < page.totalPages}"
+              style="color:#cbd5e0; font-size:13px; font-weight:500; display:flex; align-items:center; gap:4px; padding:6px 12px; cursor:not-allowed;">
+              Next &rarr;
+        </span>
+    </div>
 </section>
 
 <div th:replace="~{fragments/footer :: footer}"></div>

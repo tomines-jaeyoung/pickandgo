@@ -20,8 +20,10 @@ public class HomeController {
     }
 
     @GetMapping("/")
-    public String home(Model model) {
-        model.addAttribute("latestProducts", productService.findLatest(8).getContent());
+    public String home(@org.springframework.web.bind.annotation.RequestParam(defaultValue = "1") int page, Model model) {
+        org.springframework.data.domain.Page<com.pickandgo.domain.Product> paged = productService.findLatestPaged(page, 8);
+        model.addAttribute("latestProducts", paged.getContent());
+        model.addAttribute("page", paged);
         return "index";
     }
 }

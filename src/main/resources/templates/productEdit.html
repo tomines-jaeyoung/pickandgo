@@ -14,14 +14,20 @@
 
     <form id="productEditForm" th:action="@{'/products/' + ${product.id} + '/edit'}" method="post" enctype="multipart/form-data">
         <!-- 이미지 업로드/드롭존 -->
-        <div class="drop-zone" id="dropZone">
-            <span id="dropLabel" th:style="${product.imageUrl != null} ? 'display:none;' : ''">파일을 여기에 놓으세요</span>
-            <div class="preview" id="preview" th:style="${product.imageUrl != null} ? 'display:block;' : 'display:none;'">
-                <img id="previewImg" th:src="${product.imageUrl}" alt="미리보기">
+        <div class="drop-zone" id="dropZone" style="border: 1px solid #718096; border-radius: 4px; padding: 24px; background: #ffffff; cursor: pointer; text-align: center;">
+            <div class="preview" id="preview" style="width: 100%; border: 1px solid #718096; margin-bottom: 24px; display: block; overflow: hidden; background: #fafafa;">
+                <img id="previewImg" th:src="${product.imageUrl != null} ? ${product.imageUrl} : '/img/default-cabinet.png'" alt="미리보기" style="width: 100%; display: block; object-fit: cover; aspect-ratio: 4/3;">
             </div>
+            
+            <div style="margin-bottom: 24px;">
+                <h3 style="font-size: 22px; font-weight: 700; margin: 0 0 10px; color: #1a1a1a; letter-spacing: -0.5px;">이미지를 업로드하고 정리하세요</h3>
+                <p style="font-size: 13px; font-weight: bold; font-style: italic; margin: 0 0 4px; color: #4a5568;">PICK &amp; GO!</p>
+                <p style="font-size: 13px; margin: 0; color: #718096;">버튼 클릭 한번으로 가구를 정리하세요!</p>
+            </div>
+
             <input type="file" id="imageInput" name="image" accept="image/*" style="display:none;">
-            <div style="margin-top:14px;">
-                <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('imageInput').click()">✓ 이미지 변경</button>
+            <div>
+                <button type="button" class="btn btn-outline btn-sm" style="border: 1px solid #1a1a1a; color: #1a1a1a; background: #fff; padding: 6px 16px; border-radius: 4px; font-size: 13px;" onclick="document.getElementById('imageInput').click()">✓ 이미지 변경</button>
             </div>
         </div>
 
@@ -77,7 +83,7 @@
     function setFile(file) {
         const dt = new DataTransfer(); dt.items.add(file); imageInput.files = dt.files;
         const reader = new FileReader();
-        reader.onload = (e) => { previewImg.src = e.target.result; preview.style.display = 'block'; dropLabel.style.display = 'none'; };
+        reader.onload = (e) => { previewImg.src = e.target.result; };
         reader.readAsDataURL(file);
     }
 </script>
