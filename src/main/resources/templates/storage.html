@@ -9,8 +9,6 @@
 <div th:replace="~{fragments/header :: header}"></div>
 
 <div class="container section" style="max-width:560px;">
-    <h2 style="text-align:center;">보관할 물건 등록</h2>
-    <p style="text-align:center;color:#6b6b6b;font-size:13px;margin-bottom:30px;">간편한 보관소에 안전하게 임시 보관해드립니다.</p>
 
     <form id="storageForm" th:action="@{/storage}" method="post" enctype="multipart/form-data">
         <!-- 이미지 드롭존 (organize.html 동일 구조) -->
