@@ -45,15 +45,11 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (productRepository.count() > 0) {
-            return; // 이미 데이터가 있으면 스킵
+        if (productRepository.count() > 30) {
+            return; // 이미 데이터가 충분히 세팅되어 있으면 스킵
         }
 
-        String[] locations = {
-                "서울특별시 용산구 보광동", "서울특별시 마포구 서교동",
-                "서울특별시 강남구 역삼동", "경기도 의정부시 가능동",
-                "서울특별시 종로구 효자동"
-        };
+        productRepository.deleteAll(); // 기존 소량 데이터 삭제 후 재세팅
 
         Object[][] samples = {
                 {"럭셔리 클래식 가죽 퀼팅 킹사이즈 침대", 480000, Category.BED, "편안하고 실용적인 디자인의 중고 가구입니다."},
@@ -72,7 +68,7 @@ public class DataInitializer implements CommandLineRunner {
                 {"모던 심플 원목 컴퓨터 데스크", 200000, Category.DESK, "수납이 편리한 원목 책상입니다."},
                 {"프리미엄 묵직한 월넛 원목 데스크", 75000, Category.DESK, "원룸에 적합한 컴팩트 책상입니다."},
                 {"미니멀 원목 높이조절 스탠딩 책상", 260000, Category.DESK, "건강을 생각한 높이조절 책상입니다."},
-                {"북유럽풍 회전형 패브릭 라운지 체어", 35000, Category.CHAIR, "포인트가 되는 레드 컬러 의자입니다."},
+                {"북유럽풍 회전형 패브릭 라운지 체어", 35000, Category.CHAIR, "포인트가 되는 RED 컬러 의자입니다."},
                 {"모던 화이트 원목 바스툴 의자", 65000, Category.CHAIR, "편안한 착석감의 사무용 의자입니다."},
                 {"클래식 앤티크 브라운 원목 다이닝 체어", 48000, Category.CHAIR, "감성적인 라탄 소재 의자입니다."},
                 {"인체공학 회전형 패브릭 오피스 체어", 89000, Category.CHAIR, "통풍이 잘 되는 메쉬 의자입니다."},
@@ -103,22 +99,40 @@ public class DataInitializer implements CommandLineRunner {
         };
 
         java.util.Map<Category, Integer> categoryCounters = new java.util.HashMap<>();
+        int totalItems = 150;
         int i = 0;
-        for (Object[] s : samples) {
+        while (i < totalItems) {
+            Object[] s = samples[i % samples.length];
             String name = (String) s[0];
+            String finalName = name + " (" + (i / samples.length + 1) + ")";
             int price = (Integer) s[1];
             Category category = (Category) s[2];
             String desc = (String) s[3];
-            String location = locations[i % locations.length];
-            double rating = 3.5 + (i % 3) * 0.5;
 
+            // 드롭다운 및 요구사항에 맞게 각 지역별 가구 수 분배
+            String location;
+            if (i < 45) {
+                location = "서울특별시 중구 신당동"; // 45개 (신당동 30개 내외)
+            } else if (i < 75) {
+                location = "경기도 의정부시 가능동"; // 30개 (의정부 20개 내외)
+            } else if (i < 100) {
+                location = "서울특별시 용산구 보광동";
+            } else if (i < 125) {
+                location = "서울특별시 강남구 역삼동";
+            } else if (i < 140) {
+                location = "서울특별시 마포구 서교동";
+            } else {
+                location = "서울특별시 종로구 효자동";
+            }
+
+            double rating = 3.5 + (i % 3) * 0.5;
             int count = categoryCounters.getOrDefault(category, 0);
             int variant = (count % 3) + 1;
             categoryCounters.put(category, count + 1);
 
             String imageUrl = imageFor(category, variant);
 
-            Product p = new Product(name, price, desc, category, location, imageUrl, rating);
+            Product p = new Product(finalName, price, desc, category, location, imageUrl, rating);
             productRepository.save(p);
             i++;
         }

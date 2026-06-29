@@ -378,8 +378,8 @@ img { max-width: 100%; display: block; }
 /* ===== Product Grid ===== */
 .product-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 18px;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
 }
 .product-card {
     border: 1px solid var(--border);

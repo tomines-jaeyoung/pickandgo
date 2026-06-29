@@ -24,7 +24,7 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class ProductService {
 
-    private static final int PAGE_SIZE = 8;
+    private static final int PAGE_SIZE = 40;
     private final ProductRepository productRepository;
 
     public ProductService(ProductRepository productRepository) {

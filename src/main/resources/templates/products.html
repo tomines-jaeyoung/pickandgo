@@ -10,34 +10,75 @@
 
 <div class="container section">
     <p class="breadcrumb">Home &gt; 판매하기</p>
-    <h1 class="location-title" th:text="${location} ?: '전체 지역'">지역</h1>
+    <style>
+        .loc-dropdown-content a:hover {
+            background-color: #f8f9fa;
+            color: #212529 !important;
+        }
+    </style>
 
-    <form th:action="@{/products}" method="get" class="search-bar">
-        <input type="hidden" name="location" th:value="${location}">
-        <input type="hidden" name="category" th:value="${category}">
-        <input type="hidden" name="maxPrice" th:value="${maxPrice}">
-        <input type="text" name="keyword" placeholder="Search" th:value="${keyword}">
-        <button type="submit">🔍</button>
-    </form>
+    <div style="display: flex; align-items: center; gap: 12px; margin-top: 10px; margin-bottom: 30px;">
+        <!-- Location Dropdown Button (1번 사진 스타일) -->
+        <div class="loc-dropdown" style="position: relative; display: inline-block;">
+            <button type="button" class="loc-dropdown-btn" onclick="toggleLocDropdown()" style="display: flex; align-items: center; gap: 6px; padding: 12px 20px; border: none; background: #f1f3f5; color: #1a1a1a; font-size: 14px; font-weight: 700; border-radius: 30px; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                <span style="font-size: 14px;">📍</span>
+                <span th:text="${location} ?: '전체'">전체</span>
+                <span style="font-size: 8px; color: #868e96; margin-left: 2px;">▼</span>
+            </button>
+            <div class="loc-dropdown-content" id="locDropdownMenu" style="display: none; position: absolute; top: calc(100% + 6px); left: 0; background: #ffffff; min-width: 140px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); border-radius: 8px; z-index: 10; padding: 6px 0; border: 1px solid #e9ecef;">
+                <a href="#" onclick="selectLoc('')" style="display: block; padding: 10px 16px; color: #495057; text-decoration: none; font-size: 13px; font-weight: 600; transition: background 0.15s;">전체</a>
+                <a href="#" onclick="selectLoc('신당동')" style="display: block; padding: 10px 16px; color: #495057; text-decoration: none; font-size: 13px; font-weight: 600; transition: background 0.15s;">신당동</a>
+                <a href="#" onclick="selectLoc('의정부시')" style="display: block; padding: 10px 16px; color: #495057; text-decoration: none; font-size: 13px; font-weight: 600; transition: background 0.15s;">의정부시</a>
+                <a href="#" onclick="selectLoc('용산구')" style="display: block; padding: 10px 16px; color: #495057; text-decoration: none; font-size: 13px; font-weight: 600; transition: background 0.15s;">용산구</a>
+                <a href="#" onclick="selectLoc('강남구')" style="display: block; padding: 10px 16px; color: #495057; text-decoration: none; font-size: 13px; font-weight: 600; transition: background 0.15s;">강남구</a>
+                <a href="#" onclick="selectLoc('마포구')" style="display: block; padding: 10px 16px; color: #495057; text-decoration: none; font-size: 13px; font-weight: 600; transition: background 0.15s;">마포구</a>
+                <a href="#" onclick="selectLoc('종로구')" style="display: block; padding: 10px 16px; color: #495057; text-decoration: none; font-size: 13px; font-weight: 600; transition: background 0.15s;">종로구</a>
+            </div>
+        </div>
+
+        <!-- Search Bar Form -->
+        <form id="searchForm" th:action="@{/products}" method="get" class="search-bar" style="flex: 1; margin: 0; display: flex; align-items: center; border: 1px solid #ced4da; border-radius: 30px; padding: 2px 14px; background: #ffffff; transition: border-color 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+            <!-- Dropdown inside search bar (중고거래 ∨) -->
+            <div style="font-size: 13px; font-weight: bold; color: #495057; padding-right: 12px; border-right: 1px solid #dee2e6; display: flex; align-items: center; gap: 4px; cursor: default; white-space: nowrap; user-select: none;">
+                중고거래 <span style="font-size: 8px; color: #868e96;">▼</span>
+            </div>
+            
+            <input type="hidden" id="formLocation" name="location" th:value="${location}">
+            <input type="hidden" name="category" th:value="${category}">
+            <input type="hidden" name="maxPrice" th:value="${maxPrice}">
+            <input type="text" name="keyword" placeholder="검색어를 입력해주세요" th:value="${keyword}" style="flex: 1; border: none; padding: 10px 12px; font-size: 13px; outline: none; background: transparent;">
+            <button type="submit" style="background: #212529; color: #ffffff; border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; flex-shrink:0;">
+                <span style="font-size: 14px; font-weight: bold;">&rarr;</span>
+            </button>
+        </form>
+    </div>
+
+    <script>
+        function toggleLocDropdown() {
+            const menu = document.getElementById('locDropdownMenu');
+            if (menu.style.display === 'none' || menu.style.display === '') {
+                menu.style.display = 'block';
+            } else {
+                menu.style.display = 'none';
+            }
+        }
+
+        window.addEventListener('click', function(event) {
+            if (!event.target.closest('.loc-dropdown')) {
+                const menu = document.getElementById('locDropdownMenu');
+                if (menu) menu.style.display = 'none';
+            }
+        });
+
+        function selectLoc(locName) {
+            document.getElementById('formLocation').value = locName;
+            document.getElementById('searchForm').submit();
+        }
+    </script>
 
     <div class="products-layout">
         <!-- 필터 사이드바 -->
         <aside class="filter-box">
-
-            <div class="filter-group">
-                <h4>위치</h4>
-                <form th:action="@{/products}" method="get">
-                    <input type="hidden" name="keyword" th:value="${keyword}">
-                    <input type="hidden" name="category" th:value="${category}">
-                    <input type="hidden" name="maxPrice" th:value="${maxPrice}">
-                    <label><input type="radio" name="location" value="" onchange="this.form.submit()" th:checked="${location == null}"> 전체</label>
-                    <label><input type="radio" name="location" value="용산구" onchange="this.form.submit()" th:checked="${location == '용산구'}"> 용산구</label>
-                    <label><input type="radio" name="location" value="강남구" onchange="this.form.submit()" th:checked="${location == '강남구'}"> 강남구</label>
-                    <label><input type="radio" name="location" value="마포구" onchange="this.form.submit()" th:checked="${location == '마포구'}"> 마포구</label>
-                    <label><input type="radio" name="location" value="의정부시" onchange="this.form.submit()" th:checked="${location == '의정부시'}"> 의정부시</label>
-                    <label><input type="radio" name="location" value="종로구" onchange="this.form.submit()" th:checked="${location == '종로구'}"> 종로구</label>
-                </form>
-            </div>
 
             <div class="filter-group">
                 <h4>가격</h4>
