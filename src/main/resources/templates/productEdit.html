@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>상품 수정 - PICK & GO</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="container section" style="max-width:560px;">
+    <h2 style="text-align:center;">등록 정보 수정</h2>
+    <p style="text-align:center;color:#6b6b6b;font-size:13px;margin-bottom:30px;">등록하신 상품/수거 신청 정보를 수정합니다.</p>
+
+    <form id="productEditForm" th:action="@{'/products/' + ${product.id} + '/edit'}" method="post" enctype="multipart/form-data">
+        <!-- 이미지 업로드/드롭존 -->
+        <div class="drop-zone" id="dropZone">
+            <span id="dropLabel" th:style="${product.imageUrl != null} ? 'display:none;' : ''">파일을 여기에 놓으세요</span>
+            <div class="preview" id="preview" th:style="${product.imageUrl != null} ? 'display:block;' : 'display:none;'">
+                <img id="previewImg" th:src="${product.imageUrl}" alt="미리보기">
+            </div>
+            <input type="file" id="imageInput" name="image" accept="image/*" style="display:none;">
+            <div style="margin-top:14px;">
+                <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('imageInput').click()">✓ 이미지 변경</button>
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-top:24px;">
+            <label>상품 이름</label>
+            <input type="text" name="name" th:value="${product.name}" required>
+        </div>
+        <div class="form-group">
+            <label>가격 (KRW) <small style="color:#888;">(수거 항목일 경우 0원)</small></label>
+            <input type="number" name="price" th:value="${product.price}" required>
+        </div>
+        <div class="form-group">
+            <label>카테고리</label>
+            <select name="category" required>
+                <option th:each="c : ${categories}" th:value="${c}" th:text="${c.displayName}" th:selected="${product.category == c}"></option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>지역</label>
+            <input type="text" name="location" th:value="${product.location}" placeholder="예: 서울특별시 용산구 보광동" required>
+        </div>
+        <div class="form-group">
+            <label>설명</label>
+            <textarea name="description" th:text="${product.description}" rows="4"></textarea>
+        </div>
+
+        <div class="form-row-btns" style="display:flex; gap:16px; margin-top:24px;">
+            <a href="/mypage" class="btn btn-outline" style="flex:1; text-align:center;">취소</a>
+            <button type="submit" class="btn btn-dark" style="flex:2;">수정 완료</button>
+        </div>
+    </form>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script>
+    // 드래그앤드롭
+    const dropZone = document.getElementById('dropZone');
+    const imageInput = document.getElementById('imageInput');
+    const preview = document.getElementById('preview');
+    const previewImg = document.getElementById('previewImg');
+    const dropLabel = document.getElementById('dropLabel');
+
+    ['dragenter', 'dragover'].forEach(evt =>
+        dropZone.addEventListener(evt, (e) => { e.preventDefault(); e.stopPropagation(); dropZone.classList.add('active'); })
+    );
+    ['dragleave', 'drop'].forEach(evt =>
+        dropZone.addEventListener(evt, (e) => { e.preventDefault(); e.stopPropagation(); dropZone.classList.remove('active'); })
+    );
+    dropZone.addEventListener('drop', (e) => { const file = e.dataTransfer.files[0]; if (file) setFile(file); });
+    imageInput.addEventListener('change', (e) => { const file = e.target.files[0]; if (file) setFile(file); });
+    
+    function setFile(file) {
+        const dt = new DataTransfer(); dt.items.add(file); imageInput.files = dt.files;
+        const reader = new FileReader();
+        reader.onload = (e) => { previewImg.src = e.target.result; preview.style.display = 'block'; dropLabel.style.display = 'none'; };
+        reader.readAsDataURL(file);
+    }
+</script>
+</body>
+</html>

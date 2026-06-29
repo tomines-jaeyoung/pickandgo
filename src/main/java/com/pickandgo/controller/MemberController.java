@@ -86,6 +86,9 @@ public class MemberController {
             return "redirect:/login";
         }
 
+        // 수거대기 상태 자동 갱신
+        productService.autoUpdateStatus(loginMember.getEmail());
+
         // 보관소 신청 내역 조회
         List<StorageRequest> storageRequests = storageService.findByEmail(loginMember.getEmail());
         model.addAttribute("storageRequests", storageRequests);

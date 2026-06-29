@@ -82,17 +82,29 @@ public class StorageRequest {
 
     public Long getId() { return id; }
     public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
     public String getAddress() { return address; }
+    public void setAddress(String address) { this.address = address; }
     public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
     public String getBank() { return bank; }
+    public void setBank(String bank) { this.bank = bank; }
     public String getItemName() { return itemName; }
+    public void setItemName(String itemName) { this.itemName = itemName; }
     public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
     public int getWeight() { return weight; }
+    public void setWeight(int weight) { this.weight = weight; }
     public LocalDate getStartDate() { return startDate; }
+    public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
     public LocalDate getEndDate() { return endDate; }
+    public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
     public int getStorageCost() { return storageCost; }
+    public void setStorageCost(int storageCost) { this.storageCost = storageCost; }
     public int getTransportCost() { return transportCost; }
+    public void setTransportCost(int transportCost) { this.transportCost = transportCost; }
     public int getTotalCost() { return totalCost; }
+    public void setTotalCost(int totalCost) { this.totalCost = totalCost; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
     public LocalDateTime getRequestedAt() { return requestedAt; }

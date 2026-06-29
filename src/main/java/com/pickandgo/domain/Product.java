@@ -103,6 +103,7 @@ public class Product {
     public void setStatus(String status) { this.status = status; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
     /** 천 단위 콤마가 포함된 가격 문자열 (예: 480,000) - React의 toLocaleString() 대응 */
     public String getFormattedPrice() {

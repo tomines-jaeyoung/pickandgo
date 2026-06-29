@@ -109,6 +109,11 @@
         document.getElementById('choice-modal').style.display = 'flex';
     });
     function submitAs(type) {
+        if (type === 'sell') {
+            if (!confirm("상품을 등록하시겠습니까?")) {
+                return;
+            }
+        }
         form.action = (type === 'collect') ? '/organize/collect' : '/organize';
         form.dataset.confirmed = 'true';
         form.submit();

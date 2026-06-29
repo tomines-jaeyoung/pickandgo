@@ -84,4 +84,50 @@ public class StorageService {
     public List<StorageRequest> findAll() {
         return storageRequestRepository.findAll();
     }
+
+    @Transactional
+    public StorageRequest update(Long id, String name, String address, String email, String bank,
+                                 String itemName, MultipartFile imageFile, int weight,
+                                 LocalDate startDate, LocalDate endDate,
+                                 int storageCost, int transportCost, String uploadDir) {
+        StorageRequest req = storageRequestRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 보관 신청입니다. id=" + id));
+        if (!"접수".equals(req.getStatus())) {
+            throw new IllegalStateException("접수 상태인 보관 신청만 수정할 수 있습니다.");
+        }
+
+        req.setName(name);
+        req.setAddress(address);
+        req.setEmail(email);
+        req.setBank(bank);
+        req.setItemName(itemName);
+        req.setWeight(weight);
+        req.setStartDate(startDate);
+        req.setEndDate(endDate);
+        req.setStorageCost(storageCost);
+        req.setTransportCost(transportCost);
+        req.setTotalCost(storageCost + transportCost);
+
+        if (imageFile != null && !imageFile.isEmpty()) {
+            String imageUrl = saveImage(imageFile, uploadDir);
+            req.setImageUrl(imageUrl);
+        }
+
+        return req;
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        StorageRequest req = storageRequestRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 보관 신청입니다. id=" + id));
+        if (!"접수".equals(req.getStatus())) {
+            throw new IllegalStateException("접수 상태인 보관 신청만 취소할 수 있습니다.");
+        }
+        storageRequestRepository.delete(req);
+    }
+
+    public StorageRequest findById(Long id) {
+        return storageRequestRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 보관 신청입니다. id=" + id));
+    }
 }

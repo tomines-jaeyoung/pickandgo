@@ -142,6 +142,7 @@
                                 <th>보관 일정</th>
                                 <th>총 비용</th>
                                 <th style="width:80px; text-align:center;">상태</th>
+                                <th style="width:120px; text-align:center;">관리</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -154,6 +155,15 @@
                                 <td th:text="${#numbers.formatInteger(storageItem.totalCost, 0, 'COMMA')} + ' 원'" style="font-weight:bold;"></td>
                                 <td style="text-align:center;">
                                     <span th:text="${storageItem.status}" th:class="'badge badge-status-' + ${storageItem.status}">접수</span>
+                                </td>
+                                <td style="text-align:center;">
+                                    <div th:if="${storageItem.status == '접수'}" style="display:flex; gap:6px; justify-content:center;">
+                                        <a th:href="@{'/storage/' + ${storageItem.id} + '/edit'}" class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11px; border-radius:4px; text-decoration:none;">수정</a>
+                                        <form th:action="@{'/storage/' + ${storageItem.id} + '/delete'}" method="post" onsubmit="return confirm('보관 신청을 취소하시겠습니까?');" style="margin:0;">
+                                            <button type="submit" class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11px; border-radius:4px; color:#e03131; border-color:#e03131;">취소</button>
+                                        </form>
+                                    </div>
+                                    <span th:unless="${storageItem.status == '접수'}" style="color:#888; font-size:12px;">-</span>
                                 </td>
                             </tr>
                         </tbody>
@@ -170,6 +180,7 @@
                                 <th>가구명</th>
                                 <th>신청 지역</th>
                                 <th style="width:90px; text-align:center;">수거 상태</th>
+                                <th style="width:120px; text-align:center;">관리</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -184,6 +195,17 @@
                                 <td th:text="${cleanItem.location}"></td>
                                 <td style="text-align:center;">
                                     <span th:text="${cleanItem.status}" th:class="'badge badge-status-' + ${cleanItem.status}">수거대기</span>
+                                </td>
+                                <td style="text-align:center;">
+                                    <div style="display:flex; gap:6px; justify-content:center; align-items:center;">
+                                        <a th:if="${cleanItem.status == '수거대기'}" th:href="@{'/products/' + ${cleanItem.id} + '/edit'}" class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11px; border-radius:4px; text-decoration:none;">수정</a>
+                                        <form th:if="${cleanItem.status == '수거완료'}" th:action="@{'/products/' + ${cleanItem.id} + '/recollect'}" method="post" style="margin:0;">
+                                            <button type="submit" class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11px; border-radius:4px;">다시 신청</button>
+                                        </form>
+                                        <form th:action="@{'/products/' + ${cleanItem.id} + '/delete'}" method="post" onsubmit="return confirm('정리 수거 내역을 삭제하시겠습니까?');" style="margin:0;">
+                                            <button type="submit" class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11px; border-radius:4px; color:#e03131; border-color:#e03131;">삭제</button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>
@@ -200,7 +222,7 @@
                                 <th>가구명</th>
                                 <th>등록 금액</th>
                                 <th style="width:80px; text-align:center;">판매 상태</th>
-                                <th style="width:100px; text-align:center;">관리</th>
+                                <th style="width:150px; text-align:center;">관리</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -217,10 +239,20 @@
                                     <span th:text="${prod.status}" th:class="'badge badge-status-' + ${prod.status}">판매중</span>
                                 </td>
                                 <td style="text-align:center;">
-                                    <form th:if="${prod.status == '판매중'}" th:action="@{'/products/' + ${prod.id} + '/complete'}" method="post">
-                                        <button type="submit" class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11px; border-radius:4px;">판매완료 처리</button>
-                                    </form>
-                                    <span th:unless="${prod.status == '판매중'}" style="color:#888; font-size:12px;">-</span>
+                                    <div style="display:flex; gap:6px; justify-content:center; align-items:center;">
+                                        <th:block th:if="${prod.status == '판매중'}">
+                                            <form th:action="@{'/products/' + ${prod.id} + '/complete'}" method="post" style="margin:0;">
+                                                <button type="submit" class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11px; border-radius:4px;">판매완료</button>
+                                            </form>
+                                            <a th:href="@{'/products/' + ${prod.id} + '/edit'}" class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11px; border-radius:4px; text-decoration:none;">수정</a>
+                                        </th:block>
+                                        <form th:if="${prod.status == '판매완료'}" th:action="@{'/products/' + ${prod.id} + '/relist'}" method="post" style="margin:0;">
+                                            <button type="submit" class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11px; border-radius:4px;">다시 올리기</button>
+                                        </form>
+                                        <form th:action="@{'/products/' + ${prod.id} + '/delete'}" method="post" onsubmit="return confirm('중고 상품을 삭제하시겠습니까?');" style="margin:0;">
+                                            <button type="submit" class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11px; border-radius:4px; color:#e03131; border-color:#e03131;">삭제</button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>

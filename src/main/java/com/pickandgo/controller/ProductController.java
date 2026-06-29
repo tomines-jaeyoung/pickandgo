@@ -113,4 +113,52 @@ public class ProductController {
         productService.completeSale(id);
         return "redirect:/mypage";
     }
+
+    @GetMapping("/products/{id}/edit")
+    public String editForm(@PathVariable Long id, HttpSession session, Model model) {
+        if (session.getAttribute("loginMember") == null) return "redirect:/login";
+        Product product = productService.findById(id);
+        Member loginMember = (Member) session.getAttribute("loginMember");
+        if (!product.getSellerEmail().equals(loginMember.getEmail())) {
+            throw new IllegalStateException("본인의 상품만 수정할 수 있습니다.");
+        }
+        model.addAttribute("product", product);
+        model.addAttribute("categories", Category.values());
+        return "productEdit";
+    }
+
+    @PostMapping("/products/{id}/edit")
+    public String editSubmit(@PathVariable Long id,
+                             @RequestParam String name,
+                             @RequestParam int price,
+                             @RequestParam(required = false) String description,
+                             @RequestParam Category category,
+                             @RequestParam String location,
+                             @RequestParam(required = false) MultipartFile image,
+                             HttpSession session) {
+        if (session.getAttribute("loginMember") == null) return "redirect:/login";
+        productService.update(id, name, price, description, category, location, image, uploadDir);
+        return "redirect:/mypage";
+    }
+
+    @PostMapping("/products/{id}/relist")
+    public String relist(@PathVariable Long id, HttpSession session) {
+        if (session.getAttribute("loginMember") == null) return "redirect:/login";
+        productService.relist(id);
+        return "redirect:/mypage";
+    }
+
+    @PostMapping("/products/{id}/recollect")
+    public String recollect(@PathVariable Long id, HttpSession session) {
+        if (session.getAttribute("loginMember") == null) return "redirect:/login";
+        productService.recollect(id);
+        return "redirect:/mypage";
+    }
+
+    @PostMapping("/products/{id}/delete")
+    public String deleteProduct(@PathVariable Long id, HttpSession session) {
+        if (session.getAttribute("loginMember") == null) return "redirect:/login";
+        productService.delete(id);
+        return "redirect:/mypage";
+    }
 }

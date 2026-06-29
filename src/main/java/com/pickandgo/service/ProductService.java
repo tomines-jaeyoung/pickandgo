@@ -41,9 +41,15 @@ public class ProductService {
         return productRepository.search(loc, kw, category, maxPrice, pageable);
     }
 
+    @Transactional
     public Product findById(Long id) {
-        return productRepository.findById(id)
+        Product product = productRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다. id=" + id));
+        if ("수거대기".equals(product.getStatus()) && product.getCreatedAt() != null &&
+                product.getCreatedAt().isBefore(java.time.LocalDateTime.now().minusMinutes(1))) {
+            product.setStatus("수거완료");
+        }
+        return product;
     }
 
     /** 랜딩페이지 Sale 슬라이더용 최신 상품 목록 */
@@ -80,8 +86,64 @@ public class ProductService {
         product.setStatus("판매완료");
     }
 
+    @Transactional
+    public void autoUpdateStatus(String sellerEmail) {
+        if (sellerEmail == null) return;
+        List<Product> products = productRepository.findBySellerEmail(sellerEmail);
+        java.time.LocalDateTime oneMinuteAgo = java.time.LocalDateTime.now().minusMinutes(1);
+        for (Product p : products) {
+            if ("수거대기".equals(p.getStatus()) && p.getCreatedAt() != null && p.getCreatedAt().isBefore(oneMinuteAgo)) {
+                p.setStatus("수거완료");
+            }
+        }
+    }
+
+    @Transactional
     public List<Product> findBySellerEmail(String sellerEmail) {
+        autoUpdateStatus(sellerEmail);
         return productRepository.findBySellerEmail(sellerEmail);
+    }
+
+    @Transactional
+    public Product update(Long id, String name, int price, String description, Category category,
+                          String location, MultipartFile imageFile, String uploadDir) {
+        Product product = findById(id);
+        product.setName(name);
+        product.setPrice(price);
+        product.setDescription(description);
+        product.setCategory(category);
+        product.setLocation(location);
+        if (imageFile != null && !imageFile.isEmpty()) {
+            String imageUrl = saveImage(imageFile, uploadDir);
+            product.setImageUrl(imageUrl);
+        }
+        return product;
+    }
+
+    @Transactional
+    public void relist(Long id) {
+        Product product = findById(id);
+        if (!"판매완료".equals(product.getStatus())) {
+            throw new IllegalStateException("판매완료 상태의 상품만 다시 올릴 수 있습니다.");
+        }
+        product.setStatus("판매중");
+        product.setOnSale(true);
+        product.setCreatedAt(java.time.LocalDateTime.now());
+    }
+
+    @Transactional
+    public void recollect(Long id) {
+        Product product = findById(id);
+        if (!"수거완료".equals(product.getStatus())) {
+            throw new IllegalStateException("수거완료 상태의 신청만 다시 신청할 수 있습니다.");
+        }
+        product.setStatus("수거대기");
+        product.setCreatedAt(java.time.LocalDateTime.now());
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        productRepository.deleteById(id);
     }
 
     /**
