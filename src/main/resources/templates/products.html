@@ -11,7 +11,7 @@
 <div class="container section">
     <p class="breadcrumb">Home &gt; 판매하기</p>
     <style>
-        .loc-dropdown-content a:hover {
+        .loc-item:hover {
             background-color: #f8f9fa;
             color: #212529 !important;
         }
@@ -20,20 +20,11 @@
     <div style="display: flex; align-items: center; gap: 12px; margin-top: 10px; margin-bottom: 30px;">
         <!-- Location Dropdown Button (1번 사진 스타일) -->
         <div class="loc-dropdown" style="position: relative; display: inline-block;">
-            <button type="button" class="loc-dropdown-btn" onclick="toggleLocDropdown()" style="display: flex; align-items: center; gap: 6px; padding: 12px 20px; border: none; background: #f1f3f5; color: #1a1a1a; font-size: 14px; font-weight: 700; border-radius: 30px; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+            <button type="button" class="loc-dropdown-btn" onclick="openLocModal()" style="display: flex; align-items: center; gap: 6px; padding: 12px 20px; border: none; background: #f1f3f5; color: #1a1a1a; font-size: 14px; font-weight: 700; border-radius: 30px; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
                 <span style="font-size: 14px;">📍</span>
                 <span th:text="${location} ?: '전체'">전체</span>
                 <span style="font-size: 8px; color: #868e96; margin-left: 2px;">▼</span>
             </button>
-            <div class="loc-dropdown-content" id="locDropdownMenu" style="display: none; position: absolute; top: calc(100% + 6px); left: 0; background: #ffffff; min-width: 140px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); border-radius: 8px; z-index: 10; padding: 6px 0; border: 1px solid #e9ecef;">
-                <a href="#" onclick="selectLoc('')" style="display: block; padding: 10px 16px; color: #495057; text-decoration: none; font-size: 13px; font-weight: 600; transition: background 0.15s;">전체</a>
-                <a href="#" onclick="selectLoc('신당동')" style="display: block; padding: 10px 16px; color: #495057; text-decoration: none; font-size: 13px; font-weight: 600; transition: background 0.15s;">신당동</a>
-                <a href="#" onclick="selectLoc('의정부시')" style="display: block; padding: 10px 16px; color: #495057; text-decoration: none; font-size: 13px; font-weight: 600; transition: background 0.15s;">의정부시</a>
-                <a href="#" onclick="selectLoc('용산구')" style="display: block; padding: 10px 16px; color: #495057; text-decoration: none; font-size: 13px; font-weight: 600; transition: background 0.15s;">용산구</a>
-                <a href="#" onclick="selectLoc('강남구')" style="display: block; padding: 10px 16px; color: #495057; text-decoration: none; font-size: 13px; font-weight: 600; transition: background 0.15s;">강남구</a>
-                <a href="#" onclick="selectLoc('마포구')" style="display: block; padding: 10px 16px; color: #495057; text-decoration: none; font-size: 13px; font-weight: 600; transition: background 0.15s;">마포구</a>
-                <a href="#" onclick="selectLoc('종로구')" style="display: block; padding: 10px 16px; color: #495057; text-decoration: none; font-size: 13px; font-weight: 600; transition: background 0.15s;">종로구</a>
-            </div>
         </div>
 
         <!-- Search Bar Form -->
@@ -53,22 +44,83 @@
         </form>
     </div>
 
+    <!-- 지역 변경 모달 (4번 사진 스타일) -->
+    <div id="locModal" class="loc-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center; font-family:'Inter', sans-serif;">
+        <div style="background:#fff; width:440px; max-width:90%; border-radius:12px; overflow:hidden; box-shadow:0 10px 25px rgba(0,0,0,0.15); display:flex; flex-direction:column;">
+            <!-- Modal Header -->
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid #e9ecef; position:relative;">
+                <h3 style="font-size:18px; font-weight:700; margin:0; color:#1a1a1a;">지역 변경</h3>
+                <button type="button" onclick="closeLocModal()" style="background:none; border:none; font-size:20px; font-weight:400; cursor:pointer; position:absolute; right:20px; top:16px; color:#1a1a1a;">&times;</button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div style="padding:20px; display:flex; flex-direction:column; gap:12px;">
+                <!-- Search Bar inside Modal -->
+                <div style="position:relative; width:100%;">
+                    <input type="text" id="locSearchInput" placeholder="지역이나 동네로 검색하기" onkeyup="filterLocList()" style="width:100%; padding:12px 40px 12px 16px; border:1px solid #3b82f6; border-radius:6px; font-size:14px; outline:none; font-family:inherit;">
+                    <span style="position:absolute; right:16px; top:13px; font-size:16px; color:#4a5568;">🔍</span>
+                </div>
+                
+                <!-- Use Current Location Button -->
+                <button type="button" onclick="selectLoc('')" style="display:flex; align-items:center; justify-content:center; gap:6px; padding:12px; background:#fff5f0; border:1px solid #ffe8cc; border-radius:6px; color:#ff6b6b; font-size:14px; font-weight:700; cursor:pointer; width:100%; transition:all 0.2s;">
+                    <span style="font-size:14px;">🎯</span> 현재 내 위치 사용하기
+                </button>
+                
+                <!-- Location List (Scrollable) -->
+                <div style="margin-top:8px;">
+                    <h4 style="font-size:13px; font-weight:700; color:#228be6; margin:0 0 10px 0;">추천</h4>
+                    <div id="locListContainer" style="max-height:260px; overflow-y:auto; display:flex; flex-direction:column;">
+                        <div class="loc-item" onclick="selectLoc('신당동')" style="padding:12px; border-bottom:1px solid #f1f3f5; cursor:pointer; font-size:14px; font-weight:500; color:#495057; transition:background 0.1s;">서울특별시 중구 신당동</div>
+                        <div class="loc-item" onclick="selectLoc('의정부시')" style="padding:12px; border-bottom:1px solid #f1f3f5; cursor:pointer; font-size:14px; font-weight:500; color:#495057; transition:background 0.1s;">경기도 의정부시 가능동</div>
+                        <div class="loc-item" onclick="selectLoc('용산구')" style="padding:12px; border-bottom:1px solid #f1f3f5; cursor:pointer; font-size:14px; font-weight:500; color:#495057; transition:background 0.1s;">서울특별시 용산구 보광동</div>
+                        <div class="loc-item" onclick="selectLoc('강남구')" style="padding:12px; border-bottom:1px solid #f1f3f5; cursor:pointer; font-size:14px; font-weight:500; color:#495057; transition:background 0.1s;">서울특별시 강남구 역삼동</div>
+                        <div class="loc-item" onclick="selectLoc('마포구')" style="padding:12px; border-bottom:1px solid #f1f3f5; cursor:pointer; font-size:14px; font-weight:500; color:#495057; transition:background 0.1s;">서울특별시 마포구 서교동</div>
+                        <div class="loc-item" onclick="selectLoc('종로구')" style="padding:12px; border-bottom:1px solid #f1f3f5; cursor:pointer; font-size:14px; font-weight:500; color:#495057; transition:background 0.1s;">서울특별시 종로구 효자동</div>
+                        <div class="loc-item" onclick="selectLoc('송도동')" style="padding:12px; border-bottom:1px solid #f1f3f5; cursor:pointer; font-size:14px; font-weight:500; color:#495057; transition:background 0.1s;">인천광역시 연수구 송도동</div>
+                        <div class="loc-item" onclick="selectLoc('물금읍')" style="padding:12px; border-bottom:1px solid #f1f3f5; cursor:pointer; font-size:14px; font-weight:500; color:#495057; transition:background 0.1s;">경상남도 양산시 물금읍</div>
+                        <div class="loc-item" onclick="selectLoc('봉담읍')" style="padding:12px; border-bottom:1px solid #f1f3f5; cursor:pointer; font-size:14px; font-weight:500; color:#495057; transition:background 0.1s;">경기도 화성시 봉담읍</div>
+                        <div class="loc-item" onclick="selectLoc('배방읍')" style="padding:12px; border-bottom:1px solid #f1f3f5; cursor:pointer; font-size:14px; font-weight:500; color:#495057; transition:background 0.1s;">충청남도 아산시 배방읍</div>
+                        <div class="loc-item" onclick="selectLoc('서초동')" style="padding:12px; border-bottom:1px solid #f1f3f5; cursor:pointer; font-size:14px; font-weight:500; color:#495057; transition:background 0.1s;">서울특별시 서초구 서초동</div>
+                        <div class="loc-item" onclick="selectLoc('옥정동')" style="padding:12px; border-bottom:1px solid #f1f3f5; cursor:pointer; font-size:14px; font-weight:500; color:#495057; transition:background 0.1s;">경기도 양주시 옥정동</div>
+                        <div class="loc-item" onclick="selectLoc('신림동')" style="padding:12px; border-bottom:1px solid #f1f3f5; cursor:pointer; font-size:14px; font-weight:500; color:#495057; transition:background 0.1s;">서울특별시 관악구 신림동</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        function toggleLocDropdown() {
-            const menu = document.getElementById('locDropdownMenu');
-            if (menu.style.display === 'none' || menu.style.display === '') {
-                menu.style.display = 'block';
-            } else {
-                menu.style.display = 'none';
-            }
+        function openLocModal() {
+            document.getElementById('locModal').style.display = 'flex';
+            document.getElementById('locSearchInput').focus();
+        }
+
+        function closeLocModal() {
+            document.getElementById('locModal').style.display = 'none';
         }
 
         window.addEventListener('click', function(event) {
-            if (!event.target.closest('.loc-dropdown')) {
-                const menu = document.getElementById('locDropdownMenu');
-                if (menu) menu.style.display = 'none';
+            const modal = document.getElementById('locModal');
+            if (event.target === modal) {
+                closeLocModal();
             }
         });
+
+        function filterLocList() {
+            const input = document.getElementById('locSearchInput');
+            const filter = input.value.toLowerCase();
+            const container = document.getElementById('locListContainer');
+            const items = container.getElementsByClassName('loc-item');
+
+            for (let i = 0; i < items.length; i++) {
+                const txtValue = items[i].textContent || items[i].innerText;
+                if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                    items[i].style.display = "";
+                } else {
+                    items[i].style.display = "none";
+                }
+            }
+        }
 
         function selectLoc(locName) {
             document.getElementById('formLocation').value = locName;

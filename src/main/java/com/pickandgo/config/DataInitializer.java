@@ -45,11 +45,27 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (productRepository.count() > 30) {
+        if (productRepository.count() >= 4000) {
             return; // 이미 데이터가 충분히 세팅되어 있으면 스킵
         }
 
         productRepository.deleteAll(); // 기존 소량 데이터 삭제 후 재세팅
+
+        String[] locations = {
+                "서울특별시 중구 신당동",
+                "경기도 의정부시 가능동",
+                "서울특별시 용산구 보광동",
+                "서울특별시 강남구 역삼동",
+                "서울특별시 마포구 서교동",
+                "서울특별시 종로구 효자동",
+                "인천광역시 연수구 송도동",
+                "경상남도 양산시 물금읍",
+                "경기도 화성시 봉담읍",
+                "충청남도 아산시 배방읍",
+                "서울특별시 서초구 서초동",
+                "경기도 양주시 옥정동",
+                "서울특별시 관악구 신림동"
+        };
 
         Object[][] samples = {
                 {"럭셔리 클래식 가죽 퀼팅 킹사이즈 침대", 480000, Category.BED, "편안하고 실용적인 디자인의 중고 가구입니다."},
@@ -99,7 +115,8 @@ public class DataInitializer implements CommandLineRunner {
         };
 
         java.util.Map<Category, Integer> categoryCounters = new java.util.HashMap<>();
-        int totalItems = 150;
+        java.util.List<Product> batch = new java.util.ArrayList<>();
+        int totalItems = 4000;
         int i = 0;
         while (i < totalItems) {
             Object[] s = samples[i % samples.length];
@@ -108,22 +125,7 @@ public class DataInitializer implements CommandLineRunner {
             int price = (Integer) s[1];
             Category category = (Category) s[2];
             String desc = (String) s[3];
-
-            // 드롭다운 및 요구사항에 맞게 각 지역별 가구 수 분배
-            String location;
-            if (i < 45) {
-                location = "서울특별시 중구 신당동"; // 45개 (신당동 30개 내외)
-            } else if (i < 75) {
-                location = "경기도 의정부시 가능동"; // 30개 (의정부 20개 내외)
-            } else if (i < 100) {
-                location = "서울특별시 용산구 보광동";
-            } else if (i < 125) {
-                location = "서울특별시 강남구 역삼동";
-            } else if (i < 140) {
-                location = "서울특별시 마포구 서교동";
-            } else {
-                location = "서울특별시 종로구 효자동";
-            }
+            String location = locations[i % locations.length];
 
             double rating = 3.5 + (i % 3) * 0.5;
             int count = categoryCounters.getOrDefault(category, 0);
@@ -133,8 +135,16 @@ public class DataInitializer implements CommandLineRunner {
             String imageUrl = imageFor(category, variant);
 
             Product p = new Product(finalName, price, desc, category, location, imageUrl, rating);
-            productRepository.save(p);
+            batch.add(p);
+
+            if (batch.size() >= 500) {
+                productRepository.saveAll(batch);
+                batch.clear();
+            }
             i++;
+        }
+        if (!batch.isEmpty()) {
+            productRepository.saveAll(batch);
         }
     }
 }
