@@ -26,4 +26,9 @@ public class HomeController {
         model.addAttribute("page", paged);
         return "index";
     }
+
+    @GetMapping("/about")
+    public String about() {
+        return "about";
+    }
 }
