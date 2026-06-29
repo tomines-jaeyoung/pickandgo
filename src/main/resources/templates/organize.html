@@ -9,12 +9,10 @@
 <div th:replace="~{fragments/header :: header}"></div>
 
 <div class="container section" style="max-width:560px;">
-    <h2 style="text-align:center;">이미지를 업로드하고 정리하세요</h2>
-    <p style="text-align:center;color:#6b6b6b;font-size:13px;margin-bottom:30px;">PICK &amp; GO와 함께 정리할 가구 사진을 등록해주세요</p>
 
     <form id="organizeForm" th:action="@{/organize}" method="post" enctype="multipart/form-data">
 
-        <div class="drop-zone" id="dropZone" style="border: 1px solid #718096; border-radius: 4px; padding: 24px; background: #ffffff; cursor: pointer; text-align: center;">
+        <div class="drop-zone" id="dropZone" style="border: none; padding: 0; background: transparent; cursor: pointer; text-align: center;">
             <div class="preview" id="preview" style="width: 100%; border: 1px solid #718096; margin-bottom: 24px; display: block; overflow: hidden; background: #fafafa;">
                 <img id="previewImg" src="/img/default-cabinet.png" alt="미리보기" style="width: 100%; display: block; object-fit: cover; aspect-ratio: 4/3;">
             </div>

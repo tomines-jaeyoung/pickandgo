@@ -14,7 +14,7 @@
 
     <form id="productEditForm" th:action="@{'/products/' + ${product.id} + '/edit'}" method="post" enctype="multipart/form-data">
         <!-- 이미지 업로드/드롭존 -->
-        <div class="drop-zone" id="dropZone" style="border: 1px solid #718096; border-radius: 4px; padding: 24px; background: #ffffff; cursor: pointer; text-align: center;">
+        <div class="drop-zone" id="dropZone" style="border: none; padding: 0; background: transparent; cursor: pointer; text-align: center;">
             <div class="preview" id="preview" style="width: 100%; border: 1px solid #718096; margin-bottom: 24px; display: block; overflow: hidden; background: #fafafa;">
                 <img id="previewImg" th:src="${product.imageUrl != null} ? ${product.imageUrl} : '/img/default-cabinet.png'" alt="미리보기" style="width: 100%; display: block; object-fit: cover; aspect-ratio: 4/3;">
             </div>

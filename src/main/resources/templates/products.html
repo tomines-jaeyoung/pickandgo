@@ -126,11 +126,238 @@
             document.getElementById('formLocation').value = locName;
             document.getElementById('searchForm').submit();
         }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const currentLoc = "[[${location}]]" || "";
+            
+            const regionMapping = [
+                {
+                    key: ["중구", "신당", "약수", "황학", "명동", "중림", "회현"],
+                    parent: "서울특별시 중구",
+                    parentVal: "중구",
+                    dongs: [
+                        { name: "전체", val: "중구" },
+                        { name: "신당동", val: "신당동" },
+                        { name: "약수동", val: "약수동" },
+                        { name: "황학동", val: "황학동" },
+                        { name: "명동", val: "명동" },
+                        { name: "중림동", val: "중림동" },
+                        { name: "회현동", val: "회현동" }
+                    ]
+                },
+                {
+                    key: ["의정부"],
+                    parent: "경기도 의정부시",
+                    parentVal: "의정부시",
+                    dongs: [
+                        { name: "전체", val: "의정부시" },
+                        { name: "가능동", val: "가능동" },
+                        { name: "호원동", val: "호원동" },
+                        { name: "신곡동", val: "신곡동" },
+                        { name: "송산동", val: "송산동" },
+                        { name: "의정부동", val: "의정부동" }
+                    ]
+                },
+                {
+                    key: ["용산", "보광", "한남", "이태원", "이촌", "서빙고"],
+                    parent: "서울특별시 용산구",
+                    parentVal: "용산구",
+                    dongs: [
+                        { name: "전체", val: "용산구" },
+                        { name: "보광동", val: "보광동" },
+                        { name: "한남동", val: "한남동" },
+                        { name: "이태원동", val: "이태원동" },
+                        { name: "이촌동", val: "이촌동" },
+                        { name: "서빙고동", val: "서빙고동" }
+                    ]
+                },
+                {
+                    key: ["강남", "역삼", "개포", "청담", "삼성", "대치", "논현"],
+                    parent: "서울특별시 강남구",
+                    parentVal: "강남구",
+                    dongs: [
+                        { name: "전체", val: "강남구" },
+                        { name: "역삼동", val: "역삼동" },
+                        { name: "개포동", val: "개포동" },
+                        { name: "청담동", val: "청담동" },
+                        { name: "삼성동", val: "삼성동" },
+                        { name: "대치동", val: "대치동" },
+                        { name: "논현동", val: "논현동" }
+                    ]
+                },
+                {
+                    key: ["마포", "서교", "망원", "합정", "상암", "아현", "공덕"],
+                    parent: "서울특별시 마포구",
+                    parentVal: "마포구",
+                    dongs: [
+                        { name: "전체", val: "마포구" },
+                        { name: "서교동", val: "서교동" },
+                        { name: "망원동", val: "망원동" },
+                        { name: "합정동", val: "합정동" },
+                        { name: "상암동", val: "상암동" },
+                        { name: "아현동", val: "아현동" },
+                        { name: "공덕동", val: "공덕동" }
+                    ]
+                },
+                {
+                    key: ["종로", "효자", "사직", "삼청", "혜화", "평창"],
+                    parent: "서울특별시 종로구",
+                    parentVal: "종로구",
+                    dongs: [
+                        { name: "전체", val: "종로구" },
+                        { name: "효자동", val: "효자동" },
+                        { name: "사직동", val: "사직동" },
+                        { name: "삼청동", val: "삼청동" },
+                        { name: "혜화동", val: "혜화동" },
+                        { name: "평창동", val: "평창동" }
+                    ]
+                },
+                {
+                    key: ["연수", "송도", "동춘", "옥련", "선학"],
+                    parent: "인천광역시 연수구",
+                    parentVal: "연수구",
+                    dongs: [
+                        { name: "전체", val: "연수구" },
+                        { name: "송도동", val: "송도동" },
+                        { name: "동춘동", val: "동춘동" },
+                        { name: "옥련동", val: "옥련동" },
+                        { name: "연수동", val: "연수동" },
+                        { name: "선학동", val: "선학동" }
+                    ]
+                },
+                {
+                    key: ["양산", "물금", "동면", "중앙", "강서"],
+                    parent: "경상남도 양산시",
+                    parentVal: "양산시",
+                    dongs: [
+                        { name: "전체", val: "양산시" },
+                        { name: "물금읍", val: "물금읍" },
+                        { name: "동면", val: "동면" },
+                        { name: "삼성동", val: "삼성동" },
+                        { name: "중앙동", val: "중앙동" },
+                        { name: "강서동", val: "강서동" }
+                    ]
+                },
+                {
+                    key: ["화성", "봉담", "향남", "동탄", "남양", "우정"],
+                    parent: "경기도 화성시",
+                    parentVal: "화성시",
+                    dongs: [
+                        { name: "전체", val: "화성시" },
+                        { name: "봉담읍", val: "봉담읍" },
+                        { name: "향남읍", val: "향남읍" },
+                        { name: "동탄동", val: "동탄동" },
+                        { name: "남양읍", val: "남양읍" },
+                        { name: "우정읍", val: "우정읍" }
+                    ]
+                },
+                {
+                    key: ["아산", "배방", "신창", "탕정", "온양"],
+                    parent: "충청남도 아산시",
+                    parentVal: "아산시",
+                    dongs: [
+                        { name: "전체", val: "아산시" },
+                        { name: "배방읍", val: "배방읍" },
+                        { name: "신창면", val: "신창면" },
+                        { name: "탕정면", val: "탕정면" },
+                        { name: "온양동", val: "온양동" }
+                    ]
+                },
+                {
+                    key: ["서초", "반포", "방배", "양재", "잠원"],
+                    parent: "서울특별시 서초구",
+                    parentVal: "서초구",
+                    dongs: [
+                        { name: "전체", val: "서초구" },
+                        { name: "서초동", val: "서초동" },
+                        { name: "반포동", val: "반포동" },
+                        { name: "방배동", val: "방배동" },
+                        { name: "양재동", val: "양재동" },
+                        { name: "잠원동", val: "잠원동" }
+                    ]
+                },
+                {
+                    key: ["양주", "삼숭", "고읍", "덕계", "광적"],
+                    parent: "경기도 양주시",
+                    parentVal: "양주시",
+                    dongs: [
+                        { name: "전체", val: "양주시" },
+                        { name: "옥정동", val: "옥정동" },
+                        { name: "삼숭동", val: "삼숭동" },
+                        { name: "고읍동", val: "고읍동" },
+                        { name: "덕계동", val: "덕계동" },
+                        { name: "광적면", val: "광적면" }
+                    ]
+                },
+                {
+                    key: ["관악", "신림", "봉천", "남현", "보라매"],
+                    parent: "서울특별시 관악구",
+                    parentVal: "관악구",
+                    dongs: [
+                        { name: "전체", val: "관악구" },
+                        { name: "신림동", val: "신림동" },
+                        { name: "봉천동", val: "봉천동" },
+                        { name: "남현동", val: "남현동" },
+                        { name: "보라매동", val: "보라매동" }
+                    ]
+                }
+            ];
+
+            let matchedRegion = regionMapping[0];
+            if (currentLoc) {
+                const found = regionMapping.find(r => r.key.some(k => currentLoc.includes(k)));
+                if (found) {
+                    matchedRegion = found;
+                }
+            }
+
+            document.getElementById("parentDistrictName").textContent = matchedRegion.parent;
+
+            const listContainer = document.getElementById("subDongList");
+            listContainer.innerHTML = "";
+            
+            matchedRegion.dongs.forEach(d => {
+                const label = document.createElement("label");
+                label.style.display = "flex";
+                label.style.alignItems = "center";
+                label.style.gap = "8px";
+                label.style.fontSize = "13px";
+                label.style.color = "#495057";
+                label.style.cursor = "pointer";
+                label.style.fontWeight = "500";
+                
+                const isChecked = currentLoc === d.val || (d.name === "전체" && currentLoc === matchedRegion.parentVal);
+                
+                label.innerHTML = `
+                    <input type="radio" name="subLocRadio" value="${d.val}" ${isChecked ? 'checked' : ''} style="accent-color: #ff6b6b; width: 16px; height: 16px;">
+                    <span>${d.name}</span>
+                `;
+                
+                label.querySelector("input").addEventListener("change", function() {
+                    selectLoc(this.value);
+                });
+                
+                listContainer.appendChild(label);
+            });
+        });
     </script>
 
     <div class="products-layout">
         <!-- 필터 사이드바 -->
         <aside class="filter-box">
+
+            <!-- 위치 필터 (4번 사진 스타일) -->
+            <div class="filter-group" id="locSidebarGroup" style="margin-bottom: 24px; border-bottom: 1px solid #e9ecef; padding-bottom: 20px;">
+                <h4 style="font-size: 15px; font-weight: 700; margin: 0 0 12px 0; color: #1a1a1a;">위치</h4>
+                
+                <!-- 현재 선택된 상위 지역 표시 -->
+                <div id="parentDistrictName" style="font-size: 13px; font-weight: 700; color: #1a1a1a; margin-bottom: 12px; font-family:'Inter',sans-serif;">전체 지역</div>
+                
+                <!-- 하위 동/읍/면 라디오 버튼 리스트 -->
+                <div id="subDongList" style="display: flex; flex-direction: column; gap: 10px;">
+                    <!-- JS로 동적으로 렌더링 -->
+                </div>
+            </div>
 
             <div class="filter-group">
                 <h4>가격</h4>

@@ -21,7 +21,7 @@ public class HomeController {
 
     @GetMapping("/")
     public String home(@org.springframework.web.bind.annotation.RequestParam(defaultValue = "1") int page, Model model) {
-        org.springframework.data.domain.Page<com.pickandgo.domain.Product> paged = productService.findLatestPaged(page, 8);
+        org.springframework.data.domain.Page<com.pickandgo.domain.Product> paged = productService.findLatestPaged(page, 10);
         model.addAttribute("latestProducts", paged.getContent());
         model.addAttribute("page", paged);
         return "index";
